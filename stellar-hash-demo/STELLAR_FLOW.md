@@ -6,7 +6,7 @@ This is a test to validate how a record storage feature could be applied for foo
 
 ---
 
-## Problem Being Solved
+## Problem 
 
 Micro-entrepreneurs receive service reports and certificates in simple files (PDF, Word, WhatsApp).
 
