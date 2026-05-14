@@ -9,9 +9,11 @@ The goal is to simulate how ALI Consultora can guarantee document integrity betw
 
 ## Problem Being Solved
 
-Service reports and certificates can be altered after delivery.
-There is no simple and low-cost way for microentrepreneurs to verify authenticity and timestamp.
+Micro-entrepreneurs receive service reports and certificates in simple files (PDF, Word, WhatsApp).
 
+These documents can be edited, lost, or difficult to find when needed for inspection, proof of work, or to resolve a disagreement with a client.
+
+Instead of relying on files saved in different locations and informal message exchanges, ALI stores and validates these documents in the same system used to manage services, ensuring organization and easy access.
 ---
 
 ## Flow Overview
