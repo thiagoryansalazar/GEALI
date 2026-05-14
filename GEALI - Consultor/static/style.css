@@ -1,0 +1,294 @@
+body{
+  background:#f4f6fb;
+  font-family:"Segoe UI", sans-serif;
+  margin:0;
+  overflow:hidden;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+  width:260px;
+  height:100dvh;
+  background:#08152f;
+  color:white;
+  position:fixed;
+  left:0;
+  top:0;
+
+  display:flex;
+  flex-direction:column;
+
+  padding:14px 12px;
+
+  box-sizing:border-box;
+
+  overflow:hidden;
+}
+
+.logo-box{
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:20px;
+  background:rgba(255,255,255,0.03);
+}
+
+.logo-title{
+  font-weight:700;
+  font-size:18px;
+  margin-bottom:2px;
+}
+
+.logo-sub{
+  font-size:11px;
+  opacity:.7;
+}
+
+.menu{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+
+  scrollbar-width:thin;
+  scrollbar-color:#31456f transparent;
+}
+
+.menu-title{
+  font-size:11px;
+  text-transform:uppercase;
+  opacity:.5;
+  margin:20px 10px 10px;
+}
+
+.menu .nav-link{
+  color:#d7def5;
+  border-radius:10px;
+  padding:10px 14px;
+  margin-bottom:4px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  transition:.2s;
+  font-size:14px;
+
+}
+
+.menu .nav-link:hover{
+  background:#13234b;
+  color:white;
+}
+
+.menu .nav-link.active{
+  background:linear-gradient(135deg,#3f6df6,#5b8cff);
+  color:white;
+  box-shadow:0 8px 20px rgba(63,109,246,.35);
+}
+
+.bottom-card{
+  margin-top:12px;
+  flex-shrink:0;
+  background:linear-gradient(135deg,#16336b,#244fb8);
+  border-radius:16px;
+  padding:16px;
+  font-size:13px;
+}
+
+.bottom-card small{
+  opacity:.8;
+}
+
+/* MAIN */
+.main{
+  margin-left:260px;
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* TOPBAR */
+.topbar{
+  height:72px;
+  background:#6c2bd9;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 28px;
+  color:white;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.topbar h5{
+  margin:0;
+  font-weight:600;
+}
+
+.content{
+  padding:20px;
+  display:flex;
+  gap:20px;
+  flex:1;
+  min-width:0;
+  overflow:hidden;
+}
+
+/* LEFT PANEL */
+.left-panel{
+  width:22%;
+  min-width:240px;
+  max-width:320px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.card-custom{
+  background:white;
+  border:none;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 4px 20px rgba(0,0,0,.05);
+}
+
+.section-title{
+  font-size:13px;
+  font-weight:700;
+  color:#6c757d;
+  margin-bottom:16px;
+  text-transform:uppercase;
+}
+
+.risk-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+  font-size:14px;
+}
+
+.badge-soft{
+  background:#eef2ff;
+  color:#3f6df6;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:600;
+}
+
+.guide-card{
+  background:linear-gradient(135deg,#3f6df6,#6f8cff);
+  color:white;
+}
+
+.guide-card ul{
+  padding-left:18px;
+  margin-bottom:0;
+}
+.guide-card li{
+  margin-bottom:10px;
+  font-size:14px;
+}
+
+/* CHAT */
+.chat-wrapper{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  background:white;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,.05);
+}
+
+.chat-header{
+  padding:18px 24px;
+  border-bottom:1px solid #ececec;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.chat-body{
+  flex:1;
+  padding:24px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:#fafbff;
+  min-height:0;
+}
+
+/* MENSAGENS */
+.message{
+  max-width:80%; 
+  word-break:break-word;
+}
+
+.message small{
+  display:block;
+  margin-top:8px;
+  color:#999;
+}
+
+.chat-footer{
+  padding:18px;
+  border-top:1px solid #ececec;
+  background:white;
+}
+
+.chat-input{
+  border-radius:14px;
+  padding:14px 16px;
+  border:1px solid #dce2f0;
+}
+
+.btn-send{
+  border-radius:12px;
+  width:52px;
+}
+
+/* Scrollbar Sidebar */
+
+.menu::-webkit-scrollbar{
+  width:6px;
+}
+
+.menu::-webkit-scrollbar-thumb{
+  background:#31456f;
+  border-radius:999px;
+}
+
+.menu::-webkit-scrollbar-thumb:hover{
+  background:#46639e;
+}
+
+@media (max-width: 768px){
+
+  .sidebar{
+    width:80px;
+  }
+
+  .main{
+    margin-left:80px;
+  }
+
+  .text-menu,
+  .logo-sub,
+  .menu-title,
+  .bottom-card{
+    display:none;
+  }
+
+  .left-panel{
+    display:none;
+  }
+}
