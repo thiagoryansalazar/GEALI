@@ -6,7 +6,7 @@ This is a test to validate how a record storage feature could be applied for foo
 
 ---
 
-## Problem 
+## Problema
 
 Micro-entrepreneurs receive service reports and certificates in simple files (PDF, Word, WhatsApp).
 
@@ -52,12 +52,11 @@ Response:
 
 ---
 
-## Why Stellar?
+## Why use a blockchain layer?
 
-- Low transaction cost
-- Fast confirmation
-- Built-in memo field for anchoring data
-- Suitable for micropayments and escrow logic (future implementation)
+The blockchain layer adds a secure external record of when a document was registered, ensuring that this information cannot be modified later.
+
+This reduces uncertainty, increases trust in the information, and gives the entrepreneur more security when presenting documents to clients, partners, or during inspections.
 
 ---
 
