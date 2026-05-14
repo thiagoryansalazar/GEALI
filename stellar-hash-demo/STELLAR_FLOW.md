@@ -2,8 +2,7 @@
 
 ## Context
 
-This demo represents the anchoring of service reports on Stellar Testnet.
-The goal is to simulate how ALI Consultora can guarantee document integrity between entrepreneur and consultant.
+This is a test to validate how a record storage feature could be applied for food micro-entrepreneurs.
 
 ---
 
@@ -14,6 +13,7 @@ Micro-entrepreneurs receive service reports and certificates in simple files (PD
 These documents can be edited, lost, or difficult to find when needed for inspection, proof of work, or to resolve a disagreement with a client.
 
 Instead of relying on files saved in different locations and informal message exchanges, ALI stores and validates these documents in the same system used to manage services, ensuring organization and easy access.
+
 ---
 
 ## Flow Overview
