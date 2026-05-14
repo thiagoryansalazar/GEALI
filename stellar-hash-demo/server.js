@@ -12,7 +12,7 @@ const {
 
 const app = express();
 const port = process.env.PORT || 3000;
-const sourceSecret = 'SCBWE3SBRNR65VLX3S2YL4VVNRU3V6ASFQDZM4IXLROJ4DN6J5LRW5RO';
+cconst sourceSecret = process.env.STELLAR_SECRET;  //Aqui vai a chave secreta. 
 const sourceKeypair = Keypair.fromSecret(sourceSecret);
 const horizonServer = new Horizon.Server('https://horizon-testnet.stellar.org');
 
