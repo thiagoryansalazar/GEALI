@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ALI Consultora</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --line: #e4e8ef;
+      --text: #1f2937;
+      --muted: #64748b;
+      --primary: #2563eb;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 270px;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 22px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .logo-title { font-weight: 700; font-size: 1.05rem; }
+    .logo-sub { color: #94a3b8; font-size: 0.9rem; }
+    .menu-title { color: #94a3b8; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .menu { display: flex; flex-direction: column; gap: 8px; }
+    .nav-link {
+      color: #cbd5e1;
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-link.active { background: #1e293b; border-color: #334155; color: #fff; }
+    .bottom-card {
+      margin-top: auto;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+      background: #111c33;
+    }
+
+    .main { flex: 1; padding: 20px; }
+    .topbar {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .left-panel { display: grid; gap: 16px; }
+    .card-custom {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .section-title { font-weight: 700; margin-bottom: 12px; }
+    .risk-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #edf0f5;
+      font-size: 0.93rem;
+    }
+    .risk-item:last-child { border-bottom: 0; }
+    .badge-soft {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .chat-wrapper {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 620px;
+    }
+    .chat-header {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chat-body {
+      background: #fafbfd;
+      padding: 14px;
+      overflow-y: auto;
+    }
+    .message {
+      background: #fff;
+      border: 1px solid #e3e8ef;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+    }
+    .message small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    .status-note {
+      display: none;
+      margin: 0 14px 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      background: #eef2ff;
+      color: #1e3a8a;
+      border: 1px solid #c7d2fe;
+    }
+    .status-note.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+    .status-note.warn {
+      background: #fffbeb;
+      color: #92400e;
+      border-color: #fde68a;
+    }
+    .chat-footer {
+      border-top: 1px solid var(--line);
+      padding: 12px;
+      background: #fff;
+    }
+    .is-loading { opacity: 0.65; pointer-events: none; }
+
+    @media (max-width: 1000px) {
+      .content { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div>
+        <div class="logo-title">ALI Consultora</div>
+        <div class="logo-sub">IA para Alimentos</div>
+      </div>
+
+      <div class="menu-title">Menu</div>
+      <nav class="menu">
+        <a href="#" class="nav-link"><i class="bi bi-house"></i><span>Inicio</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-tags"></i><span>Rotulagem</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-shield-check"></i><span>Shelf-Life</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-check2-square"></i><span>Boas Praticas</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-file-earmark-text"></i><span>Certificacao ISO</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-building"></i><span>Aba ANVISA</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-globe"></i><span>Aba MAPA</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-journal-text"></i><span>Legislacao</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-currency-dollar"></i><span>Custos e Servicos</span></a>
+        <a href="#" class="nav-link active"><i class="bi bi-people"></i><span>Especialistas</span></a>
+      </nav>
+
+      <div class="bottom-card">
+        <strong>Dica Rapida</strong><br>
+        Antes de gerar um relatorio, valide os dados do produto.
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <h5 class="mb-0">Modulo Ativo • Especialistas</h5>
+        <button class="btn btn-light border rounded-pill px-4">
+          <i class="bi bi-file-earmark-text"></i>
+          Gerar Relatorio Final
+        </button>
+      </div>
+
+      <div class="content">
+        <div class="left-panel">
+          <div class="card-custom">
+            <div class="section-title">Dashboard de Riscos</div>
+            <div class="risk-item"><span>Perfil do Negocio</span><span class="badge-soft">Incompleto</span></div>
+            <div class="risk-item"><span>Vigilancia MAPA</span><span class="badge-soft">Revisavel</span></div>
+            <div class="risk-item"><span>Cadeia de Frio</span><span class="badge-soft">OK</span></div>
+          </div>
+
+          <div class="card-custom">
+            <h6 class="fw-bold mb-3">Orientacoes de Base</h6>
+            <ul class="mb-0">
+              <li>Revise requisitos da ANVISA RDC 216.</li>
+              <li>Realize manual de BPF.</li>
+              <li>Atualize registros sanitarios.</li>
+              <li>Mapeie etapas para certificacao ISO.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="chat-wrapper">
+          <div class="chat-header">
+            <div>
+              <h6 class="mb-0 fw-bold">Assistente Regulatorio</h6>
+              <small class="text-muted">Consultoria inteligente para alimentos</small>
+            </div>
+            <button class="btn btn-outline-primary rounded-pill">
+              <i class="bi bi-stars"></i>
+              Nova analise
+            </button>
+          </div>
+
+          <div class="chat-body" id="chatBody">
+            <div class="message">
+              Ola Empreendedor(a)! Sou a AI Consultora. Como posso ajudar com a regulamentacao?
+              <small>14:31</small>
+            </div>
+            <div class="message">
+              Posso auxiliar com ANVISA, BPF, rotulagem, shelf-life, MAPA e documentacao tecnica.
+              <small>14:32</small>
+            </div>
+            <div class="message">
+              Voce pode anexar um contrato e gerar o registro blockchain opcional.
+              <small>14:33</small>
+            </div>
+          </div>
+
+          <div class="status-note" id="statusNote"></div>
+
+          <div class="chat-footer">
+            <div class="input-group">
+              <button
+                class="btn btn-outline-secondary"
+                id="attachDocumentButton"
+                type="button"
+                title="Anexar documento"
+                aria-label="Anexar documento"
+              >
+                <i class="bi bi-paperclip"></i>
+              </button>
+
+              <input
+                type="text"
+                class="form-control"
+                id="chatMessageInput"
+                placeholder="Digite sua mensagem..."
+              >
+
+              <button class="btn btn-primary" id="sendMessageButton" type="button">
+                <i class="bi bi-send"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <input
+    type="file"
+    id="documentInput"
+    accept=".txt,.md,.pdf,.doc,.docx"
+    hidden
+  />
+
+  <div
+    class="modal fade"
+    id="blockchainRegisterModal"
+    tabindex="-1"
+    aria-labelledby="blockchainRegisterModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="blockchainRegisterModalLabel">
+            Confirmar registro blockchain
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Fechar"
+          ></button>
+        </div>
+        <div class="modal-body">
+          Deseja gerar um registro unico desse documento na blockchain?
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+            id="blockchainNoButton"
+          >
+            Nao
+          </button>
+          <button type="button" class="btn btn-primary" id="blockchainYesButton">
+            Sim
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const chatBody = document.getElementById('chatBody');
+    const statusNote = document.getElementById('statusNote');
+    const chatMessageInput = document.getElementById('chatMessageInput');
+    const sendMessageButton = document.getElementById('sendMessageButton');
+    const attachDocumentButton = document.getElementById('attachDocumentButton');
+    const documentInput = document.getElementById('documentInput');
+    const blockchainYesButton = document.getElementById('blockchainYesButton');
+    const blockchainNoButton = document.getElementById('blockchainNoButton');
+    const blockchainModal = new bootstrap.Modal(
+      document.getElementById('blockchainRegisterModal')
+    );
+
+    let selectedDocumentFile = null;
+    let backendBaseUrl = '';
+
+    initializeConnection();
+
+    sendMessageButton.addEventListener('click', () => {
+      const content = chatMessageInput.value.trim();
+      if (!content) return;
+      appendChatMessage(content);
+      chatMessageInput.value = '';
+    });
+
+    attachDocumentButton.addEventListener('click', () => {
+      documentInput.click();
+    });
+
+    documentInput.addEventListener('change', () => {
+      if (!documentInput.files || !documentInput.files[0]) return;
+      selectedDocumentFile = documentInput.files[0];
+      appendChatMessage(`Documento anexado: ${selectedDocumentFile.name}`);
+      blockchainModal.show();
+    });
+
+    blockchainNoButton.addEventListener('click', () => {
+      showStatus('Documento enviado sem registro blockchain.', 'warn');
+      resetSelectedDocument();
+    });
+
+    blockchainYesButton.addEventListener('click', async () => {
+      if (!selectedDocumentFile) {
+        blockchainModal.hide();
+        return;
+      }
+
+      setLoading(true);
+      showStatus('Registrando documento na Stellar Testnet...', 'warn');
+
+      try {
+        const requestPayload = await buildContractPayload(selectedDocumentFile);
+        const data = await callSignContract(requestPayload);
+
+        appendTransactionReceipt(data);
+
+        showStatus('Registro concluido com sucesso.', 'ok');
+      } catch (error) {
+        showStatus(`Falha no registro blockchain: ${error.message}`, 'error');
+      } finally {
+        setLoading(false);
+        blockchainModal.hide();
+        resetSelectedDocument();
+      }
+    });
+
+    function appendChatMessage(content) {
+      const message = document.createElement('div');
+      message.className = 'message';
+      message.textContent = content;
+
+      const time = document.createElement('small');
+      time.textContent = currentTime();
+      message.appendChild(time);
+
+      chatBody.appendChild(message);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function appendChatLink(label, url) {
+      const message = document.createElement('div');
+      message.className = 'message';
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = label;
+      message.appendChild(link);
+
+      const time = document.createElement('small');
+      time.textContent = currentTime();
+      message.appendChild(time);
+
+      chatBody.appendChild(message);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function showStatus(text, type) {
+      statusNote.textContent = text;
+      statusNote.style.display = 'block';
+      statusNote.classList.remove('error', 'warn');
+      if (type === 'error') statusNote.classList.add('error');
+      if (type === 'warn') statusNote.classList.add('warn');
+    }
+
+    function currentTime() {
+      const now = new Date();
+      return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || '').trim());
+        reader.onerror = () => reject(new Error('Nao foi possivel ler o documento anexado.'));
+        reader.readAsText(file);
+      });
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const raw = String(reader.result || '');
+          const parts = raw.split(',');
+          resolve(parts.length > 1 ? parts[1] : '');
+        };
+        reader.onerror = () => reject(new Error('Nao foi possivel ler o documento binario.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function buildContractPayload(file) {
+      const ext = file.name.toLowerCase();
+      if (ext.endsWith('.pdf') || ext.endsWith('.doc') || ext.endsWith('.docx')) {
+        const contractBytesBase64 = await readFileAsBase64(file);
+        if (!contractBytesBase64) throw new Error('Arquivo vazio ou invalido.');
+        return { contractBytesBase64 };
+      }
+
+      const contract = await readFileAsText(file);
+      if (!contract) throw new Error('Contrato nao pode estar vazio.');
+      return { contract };
+    }
+
+    async function initializeConnection() {
+      try {
+        backendBaseUrl = await resolveBackendBaseUrl();
+        showStatus(`Conexao ativa com backend: ${backendBaseUrl}`, 'ok');
+      } catch (error) {
+        showStatus(`Falha na conexao com backend: ${error.message}`, 'error');
+      }
+    }
+
+    async function resolveBackendBaseUrl() {
+      const candidates = [];
+      if (window.location.origin && window.location.origin !== 'null') {
+        candidates.push(window.location.origin);
+      }
+      if (!candidates.includes('http://localhost:3000')) {
+        candidates.push('http://localhost:3000');
+      }
+      if (!candidates.includes('http://127.0.0.1:3000')) {
+        candidates.push('http://127.0.0.1:3000');
+      }
+
+      let lastError = null;
+      for (const baseUrl of candidates) {
+        try {
+          const resp = await fetch(`${baseUrl}/health`, { method: 'GET' });
+          const contentType = resp.headers.get('content-type') || '';
+          if (!resp.ok || !contentType.includes('application/json')) {
+            lastError = new Error(`Healthcheck invalido em ${baseUrl}.`);
+            continue;
+          }
+          const payload = await resp.json();
+          if (payload.ok) return baseUrl;
+          lastError = new Error(`Backend sem status ok em ${baseUrl}.`);
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      if (lastError && lastError.name === 'TypeError') {
+        throw new Error('Backend indisponivel. Inicie o servidor com npm start.');
+      }
+      throw lastError || new Error('Backend indisponivel.');
+    }
+
+    async function callSignContract(payload) {
+      const endpoints = [];
+
+      if (backendBaseUrl) {
+        endpoints.push(`${backendBaseUrl}/sign-contract`);
+      }
+
+      if (window.location.origin && window.location.origin !== 'null') {
+        const sameOrigin = `${window.location.origin}/sign-contract`;
+        if (!endpoints.includes(sameOrigin)) {
+          endpoints.push(sameOrigin);
+        }
+      }
+
+      if (!endpoints.includes('http://localhost:3000/sign-contract')) {
+        endpoints.push('http://localhost:3000/sign-contract');
+      }
+      if (!endpoints.includes('http://127.0.0.1:3000/sign-contract')) {
+        endpoints.push('http://127.0.0.1:3000/sign-contract');
+      }
+
+      let lastError = null;
+
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const contentType = response.headers.get('content-type') || '';
+          if (!contentType.includes('application/json')) {
+            const text = await response.text();
+            lastError = new Error(`Resposta invalida em ${endpoint}. ${text.slice(0, 80)}`);
+            continue;
+          }
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || 'Falha ao registrar documento na Stellar.');
+          }
+
+          backendBaseUrl = endpoint.replace('/sign-contract', '');
+          return data;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      if (lastError && lastError.name === 'TypeError') {
+        throw new Error('Backend indisponivel. Inicie o servidor com npm start.');
+      }
+
+      throw lastError || new Error('Nao foi possivel registrar o documento na blockchain.');
+    }
+
+    function setLoading(isLoading) {
+      blockchainYesButton.disabled = isLoading;
+      blockchainNoButton.disabled = isLoading;
+      attachDocumentButton.disabled = isLoading;
+      sendMessageButton.disabled = isLoading;
+      chatMessageInput.disabled = isLoading;
+      document.body.classList.toggle('is-loading', isLoading);
+    }
+
+    function resetSelectedDocument() {
+      selectedDocumentFile = null;
+      documentInput.value = '';
+    }
+
+    function appendTransactionReceipt(data) {
+      const hash = data.contractHash || '-';
+      const tx = data.stellarTxHash || '-';
+      const link = data.stellarExpertUrl || '-';
+
+      appendChatMessage(
+        `Comprovante de registro blockchain:\nHash do contrato: ${hash}\nID da transacao: ${tx}\nLink: ${link}`
+      );
+
+      if (data.stellarExpertUrl) {
+        appendChatLink('Abrir transacao no Stellar Expert', data.stellarExpertUrl);
+      }
+    }
+  </script>
+</body>
+</html>
