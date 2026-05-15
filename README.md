@@ -130,7 +130,7 @@ Este projeto está sob a licença MIT.
 
 ## 👨‍💻 Autor
 
-Desenvolvido por Seu Nome
+Desenvolvido por GEALI
 
 ---
 
