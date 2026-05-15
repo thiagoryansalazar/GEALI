@@ -161,7 +161,7 @@
           </button>
         </div>
 
-        <div class="chat-body">
+        <div class="chat-body" id="chat-body">
 
           <div class="message">
             Olá Empreendedor(a)! Sou a AI Consultora.
@@ -191,9 +191,10 @@
               type="text"
               class="form-control chat-input"
               placeholder="Digite sua mensagem..."
+              id="user-input"
             >
 
-            <button class="btn btn-primary btn-send">
+            <button class="btn btn-primary btn-send" id="send-btn">
               <i class="bi bi-send"></i>
             </button>
           </div>
@@ -205,5 +206,6 @@
 
   </main>
 
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
