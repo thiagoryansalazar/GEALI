@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ALI Consultora</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>ALI - Registro de Contrato</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
@@ -13,13 +13,23 @@
       --line: #e4e8ef;
       --text: #1f2937;
       --muted: #64748b;
-      --primary: #2563eb;
+      --primary: #1f5fbf;
+      --auth-zoom-factor: 1;
     }
 
     * { box-sizing: border-box; }
     body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); }
 
-    .layout { display: flex; min-height: 100vh; }
+    .layout { display: flex; height: 100vh; min-height: 100vh; overflow: hidden; position: relative; }
+    .app-shell.hidden { display: none; }
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 80;
+      display: none;
+    }
+    .app-shell.mobile-open .sidebar-backdrop { display: block; }
 
     .sidebar {
       width: 270px;
@@ -29,6 +39,9 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      flex-shrink: 0;
+      transition: width 180ms ease, transform 180ms ease;
+      z-index: 90;
     }
 
     .logo-title { font-weight: 700; font-size: 1.05rem; }
@@ -55,26 +68,75 @@
       font-size: 0.88rem;
       background: #111c33;
     }
+    .mobile-sidebar-cards { display: none; }
+    .mobile-sidebar-cards .card-custom {
+      background: #111c33;
+      border-color: #334155;
+      color: #dbeafe;
+    }
+    .mobile-sidebar-cards .section-title,
+    .mobile-sidebar-cards h6 {
+      color: #ffffff;
+    }
+    .mobile-sidebar-cards .risk-item {
+      border-bottom-color: #1f2b4a;
+    }
+    .mobile-sidebar-cards .badge-soft {
+      background: #1e3a8a;
+      color: #e0e7ff;
+      border-color: #2563eb;
+    }
 
-    .main { flex: 1; padding: 20px; }
+    .main {
+      flex: 1;
+      padding: 20px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
     .topbar {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .menu-toggle-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 9px;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .topbar-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
     }
 
     .content {
       display: grid;
       grid-template-columns: 300px minmax(0, 1fr);
       gap: 16px;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
 
-    .left-panel { display: grid; gap: 16px; }
+    .left-panel { display: grid; gap: 16px; overflow-y: auto; min-height: 0; }
     .card-custom {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -108,7 +170,9 @@
       overflow: hidden;
       display: grid;
       grid-template-rows: auto 1fr auto;
-      min-height: 620px;
+      height: 100%;
+      min-height: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
     .chat-header {
       border-bottom: 1px solid var(--line);
@@ -118,9 +182,10 @@
       align-items: center;
     }
     .chat-body {
-      background: #fafbfd;
-      padding: 14px;
+      background: #f8fafc;
+      padding: 16px;
       overflow-y: auto;
+      min-height: 0;
     }
     .message {
       background: #fff;
@@ -136,6 +201,113 @@
       margin-top: 6px;
       color: var(--muted);
       font-size: 0.78rem;
+    }
+    .message.message-user {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .tx-card {
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      border-left: 5px solid #16a34a;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    }
+    .tx-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #166534;
+      margin-bottom: 10px;
+    }
+    .tx-card-desc {
+      color: #334155;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+    .tx-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+    .tx-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+    .tx-value-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .tx-value {
+      flex: 1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      color: #0f172a;
+      word-break: break-all;
+    }
+    .copy-btn {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #334155;
+      border-radius: 7px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tx-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-size: 0.86rem;
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+    .tx-technical {
+      margin-top: 10px;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 10px;
+    }
+    .tx-technical summary {
+      cursor: pointer;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .tx-json {
+      margin-top: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.76rem;
+      overflow: auto;
+    }
+    .explain-box {
+      margin-top: 10px;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .explain-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
     }
     .status-note {
       display: none;
@@ -163,16 +335,244 @@
       padding: 12px;
       background: #fff;
     }
+    .chat-footer .btn,
+    .chat-footer .form-control {
+      min-height: 44px;
+    }
+    .chat-footer .btn {
+      min-width: 44px;
+    }
+    .logout-btn {
+      width: 36px;
+      height: 36px;
+      background: #fef2f2;
+      border: none;
+      border-radius: 8px;
+      color: #ef4444;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .app-shell.sidebar-collapsed .sidebar {
+      width: 78px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+.app-shell.sidebar-collapsed .sidebar .logo-sub,
+.app-shell.sidebar-collapsed .sidebar .logo-title,
+.app-shell.sidebar-collapsed .sidebar .menu-title,
+.app-shell.sidebar-collapsed .sidebar .bottom-card,
+.app-shell.sidebar-collapsed .sidebar .nav-link span,
+.app-shell.sidebar-collapsed .sidebar .mobile-sidebar-cards {
+  display: none !important;
+    }
+    .app-shell.sidebar-collapsed .sidebar .nav-link {
+      justify-content: center;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1080;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      overflow: hidden;
+    }
+    .auth-bg-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transform: scale(calc(1 * var(--auth-zoom-factor)));
+      transform-origin: center;
+      transition: transform 120ms linear;
+    }
+    .auth-bg-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.48);
+    }
+    .login-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      padding: 22px;
+      margin: 0 auto;
+    }
+    .login-help {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin: 0;
+    }
+    .password-field-wrap {
+      position: relative;
+    }
+    .password-field-wrap .form-control {
+      padding-right: 44px;
+    }
+    .password-field-wrap input[type="password"]::-ms-reveal,
+    .password-field-wrap input[type="password"]::-ms-clear {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+    .password-toggle-btn {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: transparent;
+      color: #64748b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .password-toggle-btn:hover {
+      background: #eef2ff;
+      color: #1f2937;
+    }
+    .hidden { display: none !important; }
+    .diagnostic-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1070;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: hidden;
+    }
+    .diagnostic-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      padding: 22px;
+    }
     .is-loading { opacity: 0.65; pointer-events: none; }
 
-    @media (max-width: 1000px) {
-      .content { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
+    @media (max-width: 1024px) {
+      .main { padding: 12px; }
+      .content { grid-template-columns: 1fr; gap: 12px; }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100dvh;
+        transform: translateX(-100%);
+        width: 290px;
+        max-width: 84vw;
+        overflow-y: auto;
+      }
+      .app-shell.mobile-open .sidebar { transform: translateX(0); }
+      .app-shell.sidebar-collapsed .sidebar { width: 290px; }
+      .app-shell.sidebar-collapsed .sidebar .logo-sub,
+      .app-shell.sidebar-collapsed .sidebar .menu-title,
+      .app-shell.sidebar-collapsed .sidebar .bottom-card,
+      .app-shell.sidebar-collapsed .sidebar .nav-link span {
+        display: initial;
+      }
+      .layout { height: 100dvh; min-height: 100dvh; }
+      .left-panel { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .chat-wrapper { min-height: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .main { padding: 10px; }
+      .topbar {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .topbar .btn {
+        width: 100%;
+      }
+      .topbar-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .content {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .left-panel { display: none; }
+      .mobile-sidebar-cards { display: grid; gap: 10px; }
+      .chat-header {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chat-header .btn {
+        width: 100%;
+      }
+      .chat-footer {
+        padding: 10px;
+      }
+      .chat-footer .input-group {
+        align-items: stretch;
+      }
+      .login-card,
+      .diagnostic-card {
+        max-width: 100%;
+        border-radius: 14px;
+        padding: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main { padding: 8px; }
+      .topbar {
+        border-radius: 10px;
+        padding: 8px 10px;
+      }
+      #activeModuleLabel {
+        font-size: 1rem;
+      }
+      .card-custom {
+        padding: 12px;
+      }
+      .chat-header,
+      .chat-body,
+      .chat-footer {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .message {
+        font-size: 0.92rem;
+      }
+      .tx-value {
+        font-size: 0.74rem;
+      }
+      .copy-btn {
+        padding: 2px 6px;
+      }
+      .login-overlay,
+      .diagnostic-overlay {
+        padding: 10px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="layout">
+  <div class="layout app-shell hidden" id="appShell">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
     <aside class="sidebar">
       <div>
         <div class="logo-title">ALI Consultora</div>
@@ -181,43 +581,55 @@
 
       <div class="menu-title">Menu</div>
       <nav class="menu">
-        <a href="#" class="nav-link"><i class="bi bi-house"></i><span>Inicio</span></a>
-        <a href="#" class="nav-link"><i class="bi bi-tags"></i><span>Rotulagem</span></a>
-        <a href="#" class="nav-link"><i class="bi bi-shield-check"></i><span>Shelf-Life</span></a>
-        <a href="#" class="nav-link"><i class="bi bi-check2-square"></i><span>Boas Praticas</span></a>
-        <a href="#" class="nav-link"><i class="bi bi-file-earmark-text"></i><span>Certificacao ISO</span></a>
-        <a href="#" class="nav-link"><i class="bi bi-building"></i><span>Aba ANVISA</span></a>
-        <a href="#" class="nav-link"><i class="bi bi-globe"></i><span>Aba MAPA</span></a>
-        <a href="#" class="nav-link"><i class="bi bi-journal-text"></i><span>Legislacao</span></a>
-        <a href="#" class="nav-link"><i class="bi bi-currency-dollar"></i><span>Custos e Servicos</span></a>
-        <a href="#" class="nav-link active"><i class="bi bi-people"></i><span>Especialistas</span></a>
+        <a href="#" class="nav-link" data-module="inicio"><i class="bi bi-house"></i><span>Inicio</span></a>
+        <a href="#" class="nav-link" data-module="rotulagem"><i class="bi bi-tags"></i><span>Rotulagem</span></a>
+        <a href="#" class="nav-link" data-module="shelf_life"><i class="bi bi-shield-check"></i><span>Shelf-Life</span></a>
+        <a href="#" class="nav-link" data-module="bpf"><i class="bi bi-check2-square"></i><span>Boas Praticas</span></a>
+        <a href="#" class="nav-link" data-module="iso"><i class="bi bi-file-earmark-text"></i><span>Certificacao ISO</span></a>
+        <a href="#" class="nav-link" data-module="anvisa"><i class="bi bi-building"></i><span>Aba ANVISA</span></a>
+        <a href="#" class="nav-link" data-module="mapa"><i class="bi bi-globe"></i><span>Aba MAPA</span></a>
+        <a href="#" class="nav-link" data-module="legislacao"><i class="bi bi-journal-text"></i><span>Legislacao</span></a>
+        <a href="#" class="nav-link" data-module="custos"><i class="bi bi-currency-dollar"></i><span>Custos e Servicos</span></a>
+        <a href="#" class="nav-link active" data-module="especialistas"><i class="bi bi-people"></i><span>Especialistas</span></a>
       </nav>
 
+      <div class="mobile-sidebar-cards" id="mobileSidebarCards"></div>
+
       <div class="bottom-card">
-        <strong>Dica Rapida</strong><br>
-        Antes de gerar um relatorio, valide os dados do produto.
+        <strong>Dica Rápida</strong><br>
+        Antes de gerar um relatório, valide os dados do produto.
       </div>
     </aside>
 
     <main class="main">
       <div class="topbar">
-        <h5 class="mb-0">Modulo Ativo • Especialistas</h5>
+        <div class="topbar-title-wrap">
+          <button class="menu-toggle-btn" id="sidebarToggleButton" type="button" aria-label="Alternar menu">
+            <i class="bi bi-list"></i>
+          </button>
+          <h5 class="mb-0" id="activeModuleLabel">Módulo Ativo • Especialistas</h5>
+        </div>
         <button class="btn btn-light border rounded-pill px-4">
           <i class="bi bi-file-earmark-text"></i>
           Gerar Relatorio Final
         </button>
+        <div class="topbar-actions">
+          <button class="logout-btn" id="logoutButton" title="Sair" aria-label="Sair">
+            <i class="bi bi-box-arrow-right"></i>
+          </button>
+        </div>
       </div>
 
       <div class="content">
-        <div class="left-panel">
-          <div class="card-custom">
+        <div class="left-panel" id="leftPanel">
+          <div class="card-custom" id="riskCard">
             <div class="section-title">Dashboard de Riscos</div>
             <div class="risk-item"><span>Perfil do Negocio</span><span class="badge-soft">Incompleto</span></div>
             <div class="risk-item"><span>Vigilancia MAPA</span><span class="badge-soft">Revisavel</span></div>
             <div class="risk-item"><span>Cadeia de Frio</span><span class="badge-soft">OK</span></div>
           </div>
 
-          <div class="card-custom">
+          <div class="card-custom" id="guideCard">
             <h6 class="fw-bold mb-3">Orientacoes de Base</h6>
             <ul class="mb-0">
               <li>Revise requisitos da ANVISA RDC 216.</li>
@@ -236,24 +648,11 @@
             </div>
             <button class="btn btn-outline-primary rounded-pill">
               <i class="bi bi-stars"></i>
-              Nova analise
+              Nova análise
             </button>
           </div>
 
-          <div class="chat-body" id="chatBody">
-            <div class="message">
-              Ola Empreendedor(a)! Sou a AI Consultora. Como posso ajudar com a regulamentacao?
-              <small>14:31</small>
-            </div>
-            <div class="message">
-              Posso auxiliar com ANVISA, BPF, rotulagem, shelf-life, MAPA e documentacao tecnica.
-              <small>14:32</small>
-            </div>
-            <div class="message">
-              Voce pode anexar um contrato e gerar o registro blockchain opcional.
-              <small>14:33</small>
-            </div>
-          </div>
+          <div class="chat-body" id="chatBody"></div>
 
           <div class="status-note" id="statusNote"></div>
 
@@ -286,6 +685,85 @@
     </main>
   </div>
 
+  <div class="login-overlay" id="loginOverlay">
+    <img class="auth-bg-image" src="./logo_ali.png" alt="">
+    <div class="auth-bg-overlay"></div>
+    <div class="login-card">
+      <h5 class="fw-bold mb-2">Acesso da Consultoria</h5>
+      <p class="login-help mb-3">Entre com email e senha para acessar o chat e registrar na blockchain.</p>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="loginEmail" class="form-label">Email</label>
+          <input type="email" id="loginEmail" class="form-control" required autocomplete="username">
+        </div>
+        <div class="mb-3">
+          <label for="loginPassword" class="form-label">Senha</label>
+          <div class="password-field-wrap">
+            <input type="password" id="loginPassword" class="form-control" required autocomplete="current-password">
+            <button
+              type="button"
+              class="password-toggle-btn"
+              id="togglePasswordButton"
+              aria-label="Mostrar senha"
+              aria-pressed="false"
+            >
+              <i class="bi bi-eye-slash" id="togglePasswordIcon"></i>
+            </button>
+          </div>
+        </div>
+        <div class="d-grid">
+          <button class="btn btn-primary" type="submit" id="loginSubmitButton">Entrar</button>
+        </div>
+      </form>
+      <p class="login-help mt-3" id="loginStatus">Credenciais padrão: admin@ali.local / 123456</p>
+    </div>
+  </div>
+  
+  <div class="diagnostic-overlay hidden" id="diagnosticOverlay">
+    <img class="auth-bg-image" src="./logo_ali.png" alt="">
+    <div class="auth-bg-overlay"></div>
+    <div class="diagnostic-card">
+      <h5 class="fw-bold mb-2">Diagnóstico Inicial</h5>
+      <p class="login-help mb-3">Preencha as informações do negócio para personalizar o atendimento.</p>
+      <form id="diagnosticForm">
+        <div class="mb-3">
+          <label for="businessName" class="form-label">Nome do negócio</label>
+          <input type="text" id="businessName" class="form-control" placeholder="Ex: Doces da Ana">
+        </div>
+        <div class="mb-3">
+          <label for="productType" class="form-label">Tipo de produto</label>
+          <select id="productType" class="form-select">
+            <option value="">Selecione</option>
+            <option value="doces">Doces</option>
+            <option value="salgados">Salgados</option>
+            <option value="padaria">Padaria</option>
+            <option value="conservas">Conservas</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="hasRefrigeration" class="form-label">Possui refrigeração?</label>
+          <select id="hasRefrigeration" class="form-select">
+            <option value="">Selecione</option>
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="productionLocation" class="form-label">Local de produção</label>
+          <select id="productionLocation" class="form-select">
+            <option value="">Selecione</option>
+            <option value="casa propria">Casa própria</option>
+            <option value="local comercial">Local comercial</option>
+          </select>
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+          <button class="btn btn-outline-secondary" type="button" id="skipDiagnosticButton">Pular</button>
+          <button class="btn btn-primary" type="submit">Salvar e Continuar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <input
     type="file"
     id="documentInput"
@@ -314,7 +792,7 @@
           ></button>
         </div>
         <div class="modal-body">
-          Deseja gerar um registro unico desse documento na blockchain?
+          Deseja gerar um registro único desse documento na blockchain?
         </div>
         <div class="modal-footer">
           <button
@@ -323,7 +801,7 @@
             data-bs-dismiss="modal"
             id="blockchainNoButton"
           >
-            Nao
+            Não
           </button>
           <button type="button" class="btn btn-primary" id="blockchainYesButton">
             Sim
@@ -332,35 +810,198 @@
       </div>
     </div>
   </div>
+  
+  <div
+    class="modal fade"
+    id="logoutConfirmModal"
+    tabindex="-1"
+    aria-labelledby="logoutConfirmModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="logoutConfirmModalLabel">Confirmar saída</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Fechar"
+          ></button>
+        </div>
+        <div class="modal-body">
+          Tem certeza que deseja sair? Você será redirecionado para a tela de login.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="confirmLogoutButton">Sair</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const chatBody = document.getElementById('chatBody');
+    const appShell = document.getElementById('appShell');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     const statusNote = document.getElementById('statusNote');
+    const activeModuleLabel = document.getElementById('activeModuleLabel');
     const chatMessageInput = document.getElementById('chatMessageInput');
     const sendMessageButton = document.getElementById('sendMessageButton');
     const attachDocumentButton = document.getElementById('attachDocumentButton');
+    const logoutButton = document.getElementById('logoutButton');
+    const sidebarToggleButton = document.getElementById('sidebarToggleButton');
+    const sidebarLinks = Array.from(document.querySelectorAll('.nav-link[data-module]'));
+    const leftPanel = document.getElementById('leftPanel');
+    const mobileSidebarCards = document.getElementById('mobileSidebarCards');
+    const riskCard = document.getElementById('riskCard');
+    const guideCard = document.getElementById('guideCard');
     const documentInput = document.getElementById('documentInput');
     const blockchainYesButton = document.getElementById('blockchainYesButton');
     const blockchainNoButton = document.getElementById('blockchainNoButton');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const diagnosticOverlay = document.getElementById('diagnosticOverlay');
+    const diagnosticForm = document.getElementById('diagnosticForm');
+    const skipDiagnosticButton = document.getElementById('skipDiagnosticButton');
+    const businessName = document.getElementById('businessName');
+    const productType = document.getElementById('productType');
+    const hasRefrigeration = document.getElementById('hasRefrigeration');
+    const productionLocation = document.getElementById('productionLocation');
+    const loginForm = document.getElementById('loginForm');
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
+    const togglePasswordButton = document.getElementById('togglePasswordButton');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+    const loginStatus = document.getElementById('loginStatus');
+    const loginSubmitButton = document.getElementById('loginSubmitButton');
+    const confirmLogoutButton = document.getElementById('confirmLogoutButton');
     const blockchainModal = new bootstrap.Modal(
       document.getElementById('blockchainRegisterModal')
+    );
+    const logoutModal = new bootstrap.Modal(
+      document.getElementById('logoutConfirmModal')
     );
 
     let selectedDocumentFile = null;
     let backendBaseUrl = '';
+    let authToken = localStorage.getItem('ali_auth_token') || '';
+    const DIAGNOSTIC_KEY = 'ali_initial_diagnostic';
+    const SIDEBAR_COLLAPSED_KEY = 'ali_sidebar_collapsed';
+    const SIDEBAR_MOBILE_BREAKPOINT = 1024;
+    const MOBILE_CARDS_BREAKPOINT = 768;
+    const baseDevicePixelRatio = window.devicePixelRatio || 1;
+    const originalCardOrder = [riskCard, guideCard];
+    
+    const MODULE_MESSAGES = {
+      inicio: 'Olá! Sou a ALI Consultora. Posso ajudar com ANVISA, MAPA, BPF, rotulagem, custos e certificação. Por onde você quer começar?',
+      rotulagem: 'O rótulo é um dos primeiros itens verificados pela vigilância sanitária. Se o produto é embalado, a tabela nutricional atualizada é obrigatória. Se quiser, eu te guio item por item para validar seu rótulo.',
+      shelf_life: 'Shelf life é o tempo de vida útil do alimento. Definir validade no olho aumenta risco sanitário e risco legal. O ideal é considerar conservação, tipo de produto e validação técnica para definir um prazo seguro.',
+      bpf: 'As Boas práticas de fabricação são as regras de higiene e processo que garantem que seu produto seja seguro para o consumidor. Atenção: o local de produção influencia os requisitos exigidos. Cuidado: sem refrigeração, produtos perecíveis exigem controle redobrado do tempo de exposição. O que você quer saber sobre BPF?',
+      iso: 'A ISO 22000 é uma certificação de gestão de segurança de alimentos. Antes da ISO, o básico precisa estar firme: BPF, controles e regularização. Se quiser, eu te mostro a sequência prática para chegar na certificação.',
+      anvisa: 'A ANVISA define regras federais para produção e comercialização de alimentos. Rotulagem, boas práticas e segurança do produto entram aqui. Posso te ajudar a entender o que é obrigatório no seu caso.',
+      mapa: 'O MAPA é obrigatório para produtos de origem animal, como carnes, leite, ovos e derivados. Dependendo do alcance da venda, você pode precisar de SIM, SIE ou SIF. Posso te orientar no caminho correto para o seu tipo de venda.',
+      legislacao: 'A legislação muda por categoria de produto e forma de venda. O ponto principal é garantir conformidade com ANVISA, município e, quando aplicável, MAPA. Se quiser, organizo um checklist direto para seu negócio.',
+      custos: 'Regularização envolve custos com licenças, análises e documentação técnica. Planejar isso antes evita atraso e retrabalho. Posso te ajudar a montar uma estimativa simples por etapas.',
+      especialistas: 'Você está na aba Especialistas. Aqui você pode anexar documento e gerar registro na Stellar para prova de existência e integridade.'
+    };
+    
+    const MODULE_TITLES = {
+      inicio: 'Início',
+      rotulagem: 'Rotulagem',
+      shelf_life: 'Shelf-Life',
+      bpf: 'Boas Práticas',
+      iso: 'Certificação ISO',
+      anvisa: 'ANVISA',
+      mapa: 'MAPA',
+      legislacao: 'Legislação',
+      custos: 'Custos e Serviços',
+      especialistas: 'Especialistas'
+    };
 
-    initializeConnection();
+    bootstrapApp();
+    setupAuthBackgroundZoomSync();
+    restoreSidebarState();
+    syncLayoutByViewport();
 
     sendMessageButton.addEventListener('click', () => {
       const content = chatMessageInput.value.trim();
       if (!content) return;
-      appendChatMessage(content);
+      appendChatMessage(content, { isUser: true });
       chatMessageInput.value = '';
     });
 
     attachDocumentButton.addEventListener('click', () => {
       documentInput.click();
+    });
+
+    sidebarToggleButton.addEventListener('click', () => {
+      toggleSidebar();
+    });
+
+    sidebarBackdrop.addEventListener('click', () => {
+      appShell.classList.remove('mobile-open');
+    });
+    
+    logoutButton.addEventListener('click', () => {
+      logoutModal.show();
+    });
+    
+    confirmLogoutButton.addEventListener('click', async () => {
+      logoutModal.hide();
+      await logout();
+    });
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      await login();
+    });
+
+    togglePasswordButton.addEventListener('click', () => {
+      const isHidden = loginPassword.type === 'password';
+      loginPassword.type = isHidden ? 'text' : 'password';
+      togglePasswordIcon.className = isHidden ? 'bi bi-eye' : 'bi bi-eye-slash';
+      togglePasswordButton.setAttribute('aria-label', isHidden ? 'Esconder senha' : 'Mostrar senha');
+      togglePasswordButton.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
+    });
+    
+    diagnosticForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const profile = {
+        businessName: String(businessName.value || '').trim(),
+        productType: String(productType.value || '').trim(),
+        hasRefrigeration: String(hasRefrigeration.value || '').trim(),
+        productionLocation: String(productionLocation.value || '').trim(),
+      };
+      localStorage.setItem(DIAGNOSTIC_KEY, JSON.stringify(profile));
+      completeDiagnostic();
+    });
+
+    skipDiagnosticButton.addEventListener('click', () => {
+      completeDiagnostic();
+    });
+    
+    sidebarLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (!authToken) {
+          requireLogin();
+          return;
+        }
+        sidebarLinks.forEach((item) => item.classList.remove('active'));
+        link.classList.add('active');
+        const moduleId = link.getAttribute('data-module') || 'inicio';
+        activeModuleLabel.textContent = `Módulo Ativo • ${MODULE_TITLES[moduleId] || 'Início'}`;
+        const message = MODULE_MESSAGES[moduleId] || MODULE_MESSAGES.inicio;
+        appendChatMessage(message);
+        if (isCompactViewport()) {
+          appShell.classList.remove('mobile-open');
+        }
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      syncLayoutByViewport();
     });
 
     documentInput.addEventListener('change', () => {
@@ -400,9 +1041,12 @@
       }
     });
 
-    function appendChatMessage(content) {
+    function appendChatMessage(content, options = {}) {
       const message = document.createElement('div');
       message.className = 'message';
+      if (options.isUser) {
+        message.classList.add('message-user');
+      }
       message.textContent = content;
 
       const time = document.createElement('small');
@@ -411,6 +1055,13 @@
 
       chatBody.appendChild(message);
       chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function ensureWelcomeMessage() {
+      if (chatBody.children.length > 0) {
+        return;
+      }
+      appendChatMessage('Olá! Sou a ALI Consultora. Como posso ajudar você hoje?');
     }
 
     function appendChatLink(label, url) {
@@ -449,7 +1100,7 @@
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result || '').trim());
-        reader.onerror = () => reject(new Error('Nao foi possivel ler o documento anexado.'));
+        reader.onerror = () => reject(new Error('Não foi possível ler o documento anexado.'));
         reader.readAsText(file);
       });
     }
@@ -462,7 +1113,7 @@
           const parts = raw.split(',');
           resolve(parts.length > 1 ? parts[1] : '');
         };
-        reader.onerror = () => reject(new Error('Nao foi possivel ler o documento binario.'));
+        reader.onerror = () => reject(new Error('Não foi possível ler o documento binário.'));
         reader.readAsDataURL(file);
       });
     }
@@ -471,22 +1122,27 @@
       const ext = file.name.toLowerCase();
       if (ext.endsWith('.pdf') || ext.endsWith('.doc') || ext.endsWith('.docx')) {
         const contractBytesBase64 = await readFileAsBase64(file);
-        if (!contractBytesBase64) throw new Error('Arquivo vazio ou invalido.');
+        if (!contractBytesBase64) throw new Error('Arquivo vazio ou inválido.');
         return { contractBytesBase64 };
       }
 
       const contract = await readFileAsText(file);
-      if (!contract) throw new Error('Contrato nao pode estar vazio.');
+      if (!contract) throw new Error('Contrato não pode estar vazio.');
       return { contract };
     }
 
     async function initializeConnection() {
       try {
         backendBaseUrl = await resolveBackendBaseUrl();
-        showStatus(`Conexao ativa com backend: ${backendBaseUrl}`, 'ok');
+        showStatus(`Conexão ativa com backend: ${backendBaseUrl}`, 'ok');
       } catch (error) {
-        showStatus(`Falha na conexao com backend: ${error.message}`, 'error');
+        showStatus(`Falha na conexão com backend: ${error.message}`, 'error');
       }
+    }
+    
+    async function bootstrapApp() {
+      await initializeConnection();
+      await validateSession();
     }
 
     async function resolveBackendBaseUrl() {
@@ -519,9 +1175,145 @@
       }
 
       if (lastError && lastError.name === 'TypeError') {
-        throw new Error('Backend indisponivel. Inicie o servidor com npm start.');
+        throw new Error('Backend indisponível. Inicie o servidor com npm start.');
       }
-      throw lastError || new Error('Backend indisponivel.');
+      throw lastError || new Error('Backend indisponível.');
+    }
+
+    async function validateSession() {
+      if (!authToken) {
+        requireLogin();
+        return;
+      }
+
+      try {
+        const response = await fetch(`${backendBaseUrl}/session`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Sessão expirada.');
+        }
+
+        releaseLogin();
+      } catch (_error) {
+        requireLogin();
+      }
+    }
+
+    async function login() {
+      if (!backendBaseUrl) {
+        loginStatus.textContent = 'Backend indisponível.';
+        return;
+      }
+
+      loginSubmitButton.disabled = true;
+      loginStatus.textContent = 'Autenticando...';
+
+      try {
+        const response = await fetch(`${backendBaseUrl}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: String(loginEmail.value || '').trim(),
+            password: String(loginPassword.value || ''),
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Falha no login.');
+        }
+
+        authToken = data.token;
+        localStorage.setItem('ali_auth_token', authToken);
+        localStorage.setItem('ali_auth_email', data.email || '');
+        loginStatus.textContent = 'Acesso liberado.';
+        releaseLogin();
+      } catch (error) {
+        loginStatus.textContent = `Erro: ${error.message}`;
+      } finally {
+        loginSubmitButton.disabled = false;
+      }
+    }
+
+    async function logout() {
+      try {
+        if (backendBaseUrl && authToken) {
+          await fetch(`${backendBaseUrl}/logout`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+        }
+      } catch (_error) {
+      } finally {
+        authToken = '';
+        localStorage.removeItem('ali_auth_token');
+        localStorage.removeItem('ali_auth_email');
+        localStorage.removeItem(DIAGNOSTIC_KEY);
+        sessionStorage.clear();
+        hideDiagnostic();
+        requireLogin();
+        appShell.classList.add('hidden');
+        showStatus('Sessão encerrada.', 'warn');
+      }
+    }
+
+    function requireLogin() {
+      loginOverlay.classList.remove('hidden');
+      hideDiagnostic();
+      setMainControlsDisabled(true);
+      appShell.classList.add('hidden');
+      appShell.classList.remove('mobile-open');
+    }
+
+    function releaseLogin() {
+      loginOverlay.classList.add('hidden');
+      startDiagnosticFlow();
+    }
+
+    function startDiagnosticFlow() {
+      const raw = localStorage.getItem(DIAGNOSTIC_KEY);
+      if (raw) {
+        try {
+          const data = JSON.parse(raw);
+          businessName.value = data.businessName || '';
+          productType.value = data.productType || '';
+          hasRefrigeration.value = data.hasRefrigeration || '';
+          productionLocation.value = data.productionLocation || '';
+        } catch (_error) {
+        }
+      }
+
+      if (raw) {
+        completeDiagnostic();
+        return;
+      }
+
+      diagnosticOverlay.classList.remove('hidden');
+      appShell.classList.add('hidden');
+      setMainControlsDisabled(true);
+    }
+
+    function completeDiagnostic() {
+      hideDiagnostic();
+      appShell.classList.remove('hidden');
+      setMainControlsDisabled(false);
+      ensureWelcomeMessage();
+    }
+
+    function hideDiagnostic() {
+      diagnosticOverlay.classList.add('hidden');
+    }
+
+    function setMainControlsDisabled(disabled) {
+      attachDocumentButton.disabled = disabled;
+      sendMessageButton.disabled = disabled;
+      chatMessageInput.disabled = disabled;
     }
 
     async function callSignContract(payload) {
@@ -551,7 +1343,10 @@
         try {
           const response = await fetch(endpoint, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
             body: JSON.stringify(payload),
           });
 
@@ -564,6 +1359,9 @@
 
           const data = await response.json();
           if (!response.ok) {
+            if (response.status === 401) {
+              requireLogin();
+            }
             throw new Error(data.error || 'Falha ao registrar documento na Stellar.');
           }
 
@@ -575,10 +1373,10 @@
       }
 
       if (lastError && lastError.name === 'TypeError') {
-        throw new Error('Backend indisponivel. Inicie o servidor com npm start.');
+        throw new Error('Backend indisponível. Inicie o servidor com npm start.');
       }
 
-      throw lastError || new Error('Nao foi possivel registrar o documento na blockchain.');
+      throw lastError || new Error('Não foi possível registrar o documento na blockchain.');
     }
 
     function setLoading(isLoading) {
@@ -599,13 +1397,174 @@
       const hash = data.contractHash || '-';
       const tx = data.stellarTxHash || '-';
       const link = data.stellarExpertUrl || '-';
+      const card = document.createElement('div');
+      card.className = 'tx-card';
 
-      appendChatMessage(
-        `Comprovante de registro blockchain:\nHash do contrato: ${hash}\nID da transacao: ${tx}\nLink: ${link}`
-      );
+      const prettyPayload = {
+        contractHash: hash,
+        stellarTxHash: tx,
+        stellarExpertUrl: link,
+        message: data.message || 'Contrato registrado na Stellar Testnet.',
+      };
 
-      if (data.stellarExpertUrl) {
-        appendChatLink('Abrir transacao no Stellar Expert', data.stellarExpertUrl);
+      card.innerHTML = `
+        <div class="tx-card-title">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Documento registrado na blockchain</span>
+        </div>
+        <div class="tx-card-desc">
+          Seu documento foi registrado na Stellar Testnet. Isso prova que ele existia nesta data e não pode ser alterado.
+        </div>
+        <div class="tx-item">
+          <div class="tx-label">Hash do contrato</div>
+          <div class="tx-value-row">
+            <div class="tx-value" id="hashValue">${escapeHtml(hash)}</div>
+            <button type="button" class="copy-btn" data-copy="${escapeAttr(hash)}">Copiar</button>
+          </div>
+        </div>
+        <div class="tx-item">
+          <div class="tx-label">ID da transação</div>
+          <div class="tx-value-row">
+            <div class="tx-value" id="txValue">${escapeHtml(tx)}</div>
+            <button type="button" class="copy-btn" data-copy="${escapeAttr(tx)}">Copiar</button>
+          </div>
+        </div>
+        ${link && link !== '-' ? `<a class="tx-link" href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i>Ver no Stellar Expert</a>` : ''}
+        <details class="tx-technical">
+          <summary>Mostrar detalhes técnicos (JSON)</summary>
+          <pre class="tx-json">${escapeHtml(JSON.stringify(prettyPayload, null, 2))}</pre>
+        </details>
+      `;
+
+      card.querySelectorAll('.copy-btn').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const value = button.getAttribute('data-copy') || '';
+          try {
+            await navigator.clipboard.writeText(value);
+            const originalText = button.textContent;
+            button.textContent = 'Copiado';
+            setTimeout(() => {
+              button.textContent = originalText;
+            }, 1200);
+          } catch (_error) {
+            showStatus('Não foi possível copiar para a área de transferência.', 'warn');
+          }
+        });
+      });
+
+      const explainBox = document.createElement('div');
+      explainBox.className = 'explain-box';
+      explainBox.innerHTML = `
+        <div style="font-size:0.9rem;color:#1f2937;">Deseja entender por que gerar este registro?</div>
+        <div class="explain-actions">
+          <button type="button" class="btn btn-sm btn-primary" id="explainYesButton">Sim</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="explainNoButton">Não</button>
+        </div>
+      `;
+      card.appendChild(explainBox);
+
+      const explainYesButton = explainBox.querySelector('#explainYesButton');
+      const explainNoButton = explainBox.querySelector('#explainNoButton');
+
+      explainYesButton.addEventListener('click', () => {
+        explainBox.innerHTML = `
+          <div style="font-size:0.9rem;color:#1f2937;line-height:1.5;">
+            Quando você aceita criar um registro único de um documento, você se protege caso alguém altere esse documento e tente te enganar.
+            <br><br>
+            Ao ter esse registro, é possível validar comparando ele com o documento alterado.
+            <br><br>
+            Com isso, você garante sua segurança.
+          </div>
+        `;
+      });
+
+      explainNoButton.addEventListener('click', () => {
+        explainBox.remove();
+      });
+
+      chatBody.appendChild(card);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+
+    function isCompactViewport() {
+      return window.innerWidth <= SIDEBAR_MOBILE_BREAKPOINT;
+    }
+
+    function isMobileCardsViewport() {
+      return window.innerWidth < MOBILE_CARDS_BREAKPOINT;
+    }
+
+    function toggleSidebar() {
+      if (isCompactViewport()) {
+        appShell.classList.toggle('mobile-open');
+        return;
+      }
+
+      const collapsed = !appShell.classList.contains('sidebar-collapsed');
+      appShell.classList.toggle('sidebar-collapsed', collapsed);
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '1' : '0');
+    }
+
+    function restoreSidebarState() {
+      const collapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1';
+      appShell.classList.toggle('sidebar-collapsed', collapsed);
+    }
+
+    function syncLayoutByViewport() {
+      if (isCompactViewport()) {
+        appShell.classList.remove('sidebar-collapsed');
+      } else {
+        restoreSidebarState();
+        appShell.classList.remove('mobile-open');
+      }
+
+      relocateInfoCards();
+    }
+
+    function relocateInfoCards() {
+      if (!riskCard || !guideCard || !leftPanel || !mobileSidebarCards) return;
+
+      if (isMobileCardsViewport()) {
+        if (riskCard.parentElement !== mobileSidebarCards) {
+          mobileSidebarCards.appendChild(riskCard);
+        }
+        if (guideCard.parentElement !== mobileSidebarCards) {
+          mobileSidebarCards.appendChild(guideCard);
+        }
+        return;
+      }
+
+      originalCardOrder.forEach((card) => {
+        if (card && card.parentElement !== leftPanel) {
+          leftPanel.appendChild(card);
+        }
+      });
+    }
+
+    function setupAuthBackgroundZoomSync() {
+      const applyZoom = () => {
+        const current = window.devicePixelRatio || 1;
+        const factor = current / baseDevicePixelRatio;
+        document.documentElement.style.setProperty('--auth-zoom-factor', String(factor));
+      };
+
+      applyZoom();
+      window.addEventListener('resize', applyZoom);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', applyZoom);
       }
     }
   </script>
