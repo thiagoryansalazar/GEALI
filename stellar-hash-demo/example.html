@@ -1374,54 +1374,23 @@
       return { contract };
     }
 
-    async function initializeConnection() {
-      try {
+   async function initializeConnection() {
+    try {
         backendBaseUrl = await resolveBackendBaseUrl();
         showStatus(`${i18next.t('status_backend_connected')}: ${backendBaseUrl}`, 'ok');
-      } catch (error) {
+    } catch (error) {
         showStatus(`${i18next.t('status_backend_connect_fail')}: ${error.message}`, 'error');
-      }
     }
-    
-    async function bootstrapApp() {
-      await initializeConnection();
-      await validateSession();
-    }
+}
 
-    async function resolveBackendBaseUrl() {
-      const candidates = [];
-      if (window.location.origin && window.location.origin !== 'null') {
-        candidates.push(window.location.origin);
-      }
-      if (!candidates.includes('http://localhost:3000')) {
-        candidates.push('http://localhost:3000');
-      }
-      if (!candidates.includes('http://127.0.0.1:3000')) {
-        candidates.push('http://127.0.0.1:3000');
-      }
+async function bootstrapApp() {
+    await initializeConnection();
+    await validateSession();
+}
 
-      let lastError = null;
-      for (const baseUrl of candidates) {
-        try {
-          const resp = await fetch(`${baseUrl}/health`, { method: 'GET' });
-          const contentType = resp.headers.get('content-type') || '';
-          if (!resp.ok || !contentType.includes('application/json')) {
-            lastError = new Error(`Healthcheck invalido em ${baseUrl}.`);
-            continue;
-          }
-          const payload = await resp.json();
-          if (payload.ok) return baseUrl;
-          lastError = new Error(`Backend sem status ok em ${baseUrl}.`);
-        } catch (error) {
-          lastError = error;
-        }
-      }
-
-      if (lastError && lastError.name === 'TypeError') {
-        throw new Error('Backend indisponível. Inicie o servidor com npm start.');
-      }
-      throw lastError || new Error('Backend indisponível.');
-    }
+async function resolveBackendBaseUrl() {
+    return window.location.origin || 'https://ali-stellar-demo.onrender.com';
+}
 
     async function validateSession() {
       if (!authToken) {
@@ -1564,66 +1533,26 @@
     }
 
     async function callSignContract(payload) {
-      const endpoints = [];
+      const baseUrl = backendBaseUrl || window.location.origin || 'https://ali-stellar-demo.onrender.com';
+      const endpoint = `${baseUrl}/sign-contract`;
 
-      if (backendBaseUrl) {
-        endpoints.push(`${backendBaseUrl}/sign-contract`);
-      }
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-      if (window.location.origin && window.location.origin !== 'null') {
-        const sameOrigin = `${window.location.origin}/sign-contract`;
-        if (!endpoints.includes(sameOrigin)) {
-          endpoints.push(sameOrigin);
+      const data = await response.json();
+      if (!response.ok) {
+        if (response.status === 401) {
+          requireLogin();
         }
+        throw new Error(data.error || 'Falha ao registrar documento na Stellar.');
       }
-
-      if (!endpoints.includes('http://localhost:3000/sign-contract')) {
-        endpoints.push('http://localhost:3000/sign-contract');
-      }
-      if (!endpoints.includes('http://127.0.0.1:3000/sign-contract')) {
-        endpoints.push('http://127.0.0.1:3000/sign-contract');
-      }
-
-      let lastError = null;
-
-      for (const endpoint of endpoints) {
-        try {
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${authToken}`,
-            },
-            body: JSON.stringify(payload),
-          });
-
-          const contentType = response.headers.get('content-type') || '';
-          if (!contentType.includes('application/json')) {
-            const text = await response.text();
-            lastError = new Error(`Resposta invalida em ${endpoint}. ${text.slice(0, 80)}`);
-            continue;
-          }
-
-          const data = await response.json();
-          if (!response.ok) {
-            if (response.status === 401) {
-              requireLogin();
-            }
-            throw new Error(data.error || 'Falha ao registrar documento na Stellar.');
-          }
-
-          backendBaseUrl = endpoint.replace('/sign-contract', '');
-          return data;
-        } catch (error) {
-          lastError = error;
-        }
-      }
-
-      if (lastError && lastError.name === 'TypeError') {
-        throw new Error('Backend indisponível. Inicie o servidor com npm start.');
-      }
-
-      throw lastError || new Error('Não foi possível registrar o documento na blockchain.');
+      return data;
     }
 
     function setLoading(isLoading) {
