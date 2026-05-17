@@ -371,6 +371,8 @@
       padding-left: 8px;
       padding-right: 8px;
     }
+    .login-container,
+    .diagnostic-container,
     .login-overlay {
       position: fixed;
       inset: 0;
@@ -379,6 +381,33 @@
       place-items: center;
       padding: 16px;
       overflow: hidden;
+      background-image: url('image/logo_ali.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .lang-switcher {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 30;
+      display: flex;
+      gap: 8px;
+    }
+    .lang-btn {
+      border: 1px solid rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      line-height: 1;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .lang-btn.active {
+      background: #fff;
+      color: #111827;
+      border-color: #fff;
     }
     .auth-bg-image {
       position: absolute;
@@ -455,6 +484,10 @@
       justify-content: center;
       padding: 16px;
       overflow: hidden;
+      background-image: url('image/logo_ali.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
     .diagnostic-card {
       position: relative;
@@ -579,18 +612,18 @@
         <div class="logo-sub">IA para Alimentos</div>
       </div>
 
-      <div class="menu-title">Menu</div>
+      <div class="menu-title" data-i18n="menu">Menu</div>
       <nav class="menu">
-        <a href="#" class="nav-link" data-module="inicio"><i class="bi bi-house"></i><span>Inicio</span></a>
-        <a href="#" class="nav-link" data-module="rotulagem"><i class="bi bi-tags"></i><span>Rotulagem</span></a>
-        <a href="#" class="nav-link" data-module="shelf_life"><i class="bi bi-shield-check"></i><span>Shelf-Life</span></a>
-        <a href="#" class="nav-link" data-module="bpf"><i class="bi bi-check2-square"></i><span>Boas Praticas</span></a>
-        <a href="#" class="nav-link" data-module="iso"><i class="bi bi-file-earmark-text"></i><span>Certificacao ISO</span></a>
+        <a href="#" class="nav-link" data-module="inicio"><i class="bi bi-house"></i><span data-i18n="module_inicio">Inicio</span></a>
+        <a href="#" class="nav-link" data-module="rotulagem"><i class="bi bi-tags"></i><span data-i18n="module_rotulagem">Rotulagem</span></a>
+        <a href="#" class="nav-link" data-module="shelf_life"><i class="bi bi-shield-check"></i><span data-i18n="module_shelf_life">Shelf-Life</span></a>
+        <a href="#" class="nav-link" data-module="bpf"><i class="bi bi-check2-square"></i><span data-i18n="module_bpf">Boas Praticas</span></a>
+        <a href="#" class="nav-link" data-module="iso"><i class="bi bi-file-earmark-text"></i><span data-i18n="tab_iso">Certificacao ISO</span></a>
         <a href="#" class="nav-link" data-module="anvisa"><i class="bi bi-building"></i><span>Aba ANVISA</span></a>
         <a href="#" class="nav-link" data-module="mapa"><i class="bi bi-globe"></i><span>Aba MAPA</span></a>
-        <a href="#" class="nav-link" data-module="legislacao"><i class="bi bi-journal-text"></i><span>Legislacao</span></a>
-        <a href="#" class="nav-link" data-module="custos"><i class="bi bi-currency-dollar"></i><span>Custos e Servicos</span></a>
-        <a href="#" class="nav-link active" data-module="especialistas"><i class="bi bi-people"></i><span>Especialistas</span></a>
+        <a href="#" class="nav-link" data-module="legislacao"><i class="bi bi-journal-text"></i><span data-i18n="tab_legislation">Legislacao</span></a>
+        <a href="#" class="nav-link" data-module="custos"><i class="bi bi-currency-dollar"></i><span data-i18n="tab_costs">Custos e Servicos</span></a>
+        <a href="#" class="nav-link active" data-module="especialistas"><i class="bi bi-people"></i><span data-i18n="module_especialistas">Especialistas</span></a>
       </nav>
 
       <div class="mobile-sidebar-cards" id="mobileSidebarCards"></div>
@@ -609,7 +642,7 @@
           </button>
           <h5 class="mb-0" id="activeModuleLabel">Módulo Ativo • Especialistas</h5>
         </div>
-        <button class="btn btn-light border rounded-pill px-4">
+        <button class="btn btn-light border rounded-pill px-4" data-i18n="generate_report">
           <i class="bi bi-file-earmark-text"></i>
           Gerar Relatorio Final
         </button>
@@ -623,19 +656,19 @@
       <div class="content">
         <div class="left-panel" id="leftPanel">
           <div class="card-custom" id="riskCard">
-            <div class="section-title">Dashboard de Riscos</div>
-            <div class="risk-item"><span>Perfil do Negocio</span><span class="badge-soft">Incompleto</span></div>
-            <div class="risk-item"><span>Vigilancia MAPA</span><span class="badge-soft">Revisavel</span></div>
-            <div class="risk-item"><span>Cadeia de Frio</span><span class="badge-soft">OK</span></div>
+            <div class="section-title" data-i18n="risk_dashboard">Dashboard de Riscos</div>
+            <div class="risk-item"><span data-i18n="business_profile">Perfil do Negocio</span><span class="badge-soft" data-i18n="incomplete">Incompleto</span></div>
+            <div class="risk-item"><span data-i18n="mapa_surveillance">Vigilancia MAPA</span><span class="badge-soft" data-i18n="reviewable">Revisavel</span></div>
+            <div class="risk-item"><span data-i18n="cold_chain">Cadeia de Frio</span><span class="badge-soft" data-i18n="ok">OK</span></div>
           </div>
 
           <div class="card-custom" id="guideCard">
-            <h6 class="fw-bold mb-3">Orientacoes de Base</h6>
+            <h6 class="fw-bold mb-3" data-i18n="basic_guidelines">Orientacoes de Base</h6>
             <ul class="mb-0">
-              <li>Revise requisitos da ANVISA RDC 216.</li>
-              <li>Realize manual de BPF.</li>
-              <li>Atualize registros sanitarios.</li>
-              <li>Mapeie etapas para certificacao ISO.</li>
+              <li data-i18n="guideline_1">Revise requisitos da ANVISA RDC 216.</li>
+              <li data-i18n="guideline_2">Realize manual de BPF.</li>
+              <li data-i18n="guideline_3">Atualize registros sanitarios.</li>
+              <li data-i18n="guideline_4">Mapeie etapas para certificacao ISO.</li>
             </ul>
           </div>
         </div>
@@ -643,10 +676,10 @@
         <div class="chat-wrapper">
           <div class="chat-header">
             <div>
-              <h6 class="mb-0 fw-bold">Assistente Regulatorio</h6>
-              <small class="text-muted">Consultoria inteligente para alimentos</small>
+              <h6 class="mb-0 fw-bold" data-i18n="chat_title">Assistente Regulatorio</h6>
+              <small class="text-muted" data-i18n="chat_subtitle">Consultoria inteligente para alimentos</small>
             </div>
-            <button class="btn btn-outline-primary rounded-pill">
+            <button class="btn btn-outline-primary rounded-pill" data-i18n="new_analysis">
               <i class="bi bi-stars"></i>
               Nova análise
             </button>
@@ -675,7 +708,7 @@
                 placeholder="Digite sua mensagem..."
               >
 
-              <button class="btn btn-primary" id="sendMessageButton" type="button">
+              <button class="btn btn-primary" id="sendMessageButton" type="button" title="Enviar" aria-label="Enviar">
                 <i class="bi bi-send"></i>
               </button>
             </div>
@@ -686,18 +719,21 @@
   </div>
 
   <div class="login-overlay" id="loginOverlay">
-    <img class="auth-bg-image" src="./logo_ali.png" alt="">
+    <div class="lang-switcher">
+      <button type="button" class="lang-btn active" id="langPtButton" aria-label="Português">🇧🇷</button>
+      <button type="button" class="lang-btn" id="langEnButton" aria-label="English">🇺🇸</button>
+    </div>
     <div class="auth-bg-overlay"></div>
     <div class="login-card">
-      <h5 class="fw-bold mb-2">Acesso da Consultoria</h5>
-      <p class="login-help mb-3">Entre com email e senha para acessar o chat e registrar na blockchain.</p>
+      <h5 class="fw-bold mb-2" id="loginTitle" data-i18n="app_title">ALI Consultora</h5>
+      <p class="login-help mb-3" id="loginSubtitle" data-i18n="app_subtitle">Tecnologia e conhecimento para microempreendedores de alimentos</p>
       <form id="loginForm">
         <div class="mb-3">
-          <label for="loginEmail" class="form-label">Email</label>
+          <label for="loginEmail" class="form-label" id="emailLabel" data-i18n="email">Email</label>
           <input type="email" id="loginEmail" class="form-control" required autocomplete="username">
         </div>
         <div class="mb-3">
-          <label for="loginPassword" class="form-label">Senha</label>
+          <label for="loginPassword" class="form-label" id="passwordLabel" data-i18n="password">Senha</label>
           <div class="password-field-wrap">
             <input type="password" id="loginPassword" class="form-control" required autocomplete="current-password">
             <button
@@ -712,53 +748,53 @@
           </div>
         </div>
         <div class="d-grid">
-          <button class="btn btn-primary" type="submit" id="loginSubmitButton">Entrar</button>
+          <button class="btn btn-primary" type="submit" id="loginSubmitButton" data-i18n="sign_in">Entrar</button>
         </div>
+        <p class="login-help mt-3 mb-0" id="forgotPasswordText" data-i18n="forgot_password">Esqueceu a senha?</p>
       </form>
-      <p class="login-help mt-3" id="loginStatus">Credenciais padrão: admin@ali.local / 123456</p>
+      <p class="login-help mt-3" id="loginStatus" data-i18n="default_credentials">Credenciais padrão: admin@ali.local / 123456</p>
     </div>
   </div>
   
   <div class="diagnostic-overlay hidden" id="diagnosticOverlay">
-    <img class="auth-bg-image" src="./logo_ali.png" alt="">
     <div class="auth-bg-overlay"></div>
     <div class="diagnostic-card">
-      <h5 class="fw-bold mb-2">Diagnóstico Inicial</h5>
-      <p class="login-help mb-3">Preencha as informações do negócio para personalizar o atendimento.</p>
+      <h5 class="fw-bold mb-2" data-i18n="diagnostic_title">Diagnóstico Inicial</h5>
+      <p class="login-help mb-3" data-i18n="diagnostic_subtitle">Preencha as informações do negócio para personalizar o atendimento.</p>
       <form id="diagnosticForm">
         <div class="mb-3">
-          <label for="businessName" class="form-label">Nome do negócio</label>
-          <input type="text" id="businessName" class="form-control" placeholder="Ex: Doces da Ana">
+          <label for="businessName" class="form-label" data-i18n="business_name">Nome do negócio</label>
+          <input type="text" id="businessName" class="form-control" data-i18n-placeholder="business_name_placeholder" placeholder="Ex: Doces da Ana">
         </div>
         <div class="mb-3">
-          <label for="productType" class="form-label">Tipo de produto</label>
+          <label for="productType" class="form-label" data-i18n="product_type">Tipo de produto</label>
           <select id="productType" class="form-select">
-            <option value="">Selecione</option>
-            <option value="doces">Doces</option>
-            <option value="salgados">Salgados</option>
-            <option value="padaria">Padaria</option>
-            <option value="conservas">Conservas</option>
+            <option value="" data-i18n="select">Selecione</option>
+            <option value="doces" data-i18n="product_sweets">Doces</option>
+            <option value="salgados" data-i18n="product_salty">Salgados</option>
+            <option value="padaria" data-i18n="product_bakery">Padaria</option>
+            <option value="conservas" data-i18n="product_preserves">Conservas</option>
           </select>
         </div>
         <div class="mb-3">
-          <label for="hasRefrigeration" class="form-label">Possui refrigeração?</label>
+          <label for="hasRefrigeration" class="form-label" data-i18n="has_refrigeration">Possui refrigeração?</label>
           <select id="hasRefrigeration" class="form-select">
-            <option value="">Selecione</option>
-            <option value="sim">Sim</option>
-            <option value="nao">Não</option>
+            <option value="" data-i18n="select">Selecione</option>
+            <option value="sim" data-i18n="yes">Sim</option>
+            <option value="nao" data-i18n="no">Não</option>
           </select>
         </div>
         <div class="mb-3">
-          <label for="productionLocation" class="form-label">Local de produção</label>
+          <label for="productionLocation" class="form-label" data-i18n="production_location">Local de produção</label>
           <select id="productionLocation" class="form-select">
-            <option value="">Selecione</option>
-            <option value="casa propria">Casa própria</option>
-            <option value="local comercial">Local comercial</option>
+            <option value="" data-i18n="select">Selecione</option>
+            <option value="casa propria" data-i18n="location_home">Casa própria</option>
+            <option value="local comercial" data-i18n="location_commercial">Local comercial</option>
           </select>
         </div>
         <div class="d-flex gap-2 justify-content-end">
-          <button class="btn btn-outline-secondary" type="button" id="skipDiagnosticButton">Pular</button>
-          <button class="btn btn-primary" type="submit">Salvar e Continuar</button>
+          <button class="btn btn-outline-secondary" type="button" id="skipDiagnosticButton" data-i18n="skip">Pular</button>
+          <button class="btn btn-primary" type="submit" data-i18n="save_and_continue">Salvar e Continuar</button>
         </div>
       </form>
     </div>
@@ -781,7 +817,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="blockchainRegisterModalLabel">
+          <h5 class="modal-title" id="blockchainRegisterModalLabel" data-i18n="confirm_registration">
             Confirmar registro blockchain
           </h5>
           <button
@@ -791,7 +827,7 @@
             aria-label="Fechar"
           ></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" id="blockchainQuestionText" data-i18n="confirm_question">
           Deseja gerar um registro único desse documento na blockchain?
         </div>
         <div class="modal-footer">
@@ -801,10 +837,10 @@
             data-bs-dismiss="modal"
             id="blockchainNoButton"
           >
-            Não
+            <span data-i18n="no">Não</span>
           </button>
           <button type="button" class="btn btn-primary" id="blockchainYesButton">
-            Sim
+            <span data-i18n="yes">Sim</span>
           </button>
         </div>
       </div>
@@ -821,7 +857,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="logoutConfirmModalLabel">Confirmar saída</h5>
+          <h5 class="modal-title" id="logoutConfirmModalLabel" data-i18n="confirm_logout_title">Confirmar saída</h5>
           <button
             type="button"
             class="btn-close"
@@ -829,18 +865,19 @@
             aria-label="Fechar"
           ></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" id="logoutConfirmText" data-i18n="confirm_logout">
           Tem certeza que deseja sair? Você será redirecionado para a tela de login.
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-danger" id="confirmLogoutButton">Sair</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="confirmLogoutButton" data-i18n="logout">Sair</button>
         </div>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/i18next@23.10.0/i18next.min.js"></script>
   <script>
     const chatBody = document.getElementById('chatBody');
     const appShell = document.getElementById('appShell');
@@ -871,6 +908,13 @@
     const loginForm = document.getElementById('loginForm');
     const loginEmail = document.getElementById('loginEmail');
     const loginPassword = document.getElementById('loginPassword');
+    const langPtButton = document.getElementById('langPtButton');
+    const langEnButton = document.getElementById('langEnButton');
+    const loginTitle = document.getElementById('loginTitle');
+    const loginSubtitle = document.getElementById('loginSubtitle');
+    const emailLabel = document.getElementById('emailLabel');
+    const passwordLabel = document.getElementById('passwordLabel');
+    const forgotPasswordText = document.getElementById('forgotPasswordText');
     const togglePasswordButton = document.getElementById('togglePasswordButton');
     const togglePasswordIcon = document.getElementById('togglePasswordIcon');
     const loginStatus = document.getElementById('loginStatus');
@@ -919,6 +963,203 @@
       especialistas: 'Especialistas'
     };
 
+    const resources = {
+      pt: { translation: {
+        app_title: 'ALI Consultora',
+        app_subtitle: 'Tecnologia e conhecimento para microempreendedores de alimentos',
+        email: 'Email',
+        password: 'Senha',
+        sign_in: 'Entrar',
+        diagnostic_title: 'Diagnóstico Inicial',
+        diagnostic_subtitle: 'Preencha as informações do negócio para personalizar o atendimento.',
+        business_name: 'Nome do negócio',
+        business_name_placeholder: 'Ex: Doces da Ana',
+        product_type: 'Tipo de produto',
+        has_refrigeration: 'Possui refrigeração?',
+        production_location: 'Local de produção',
+        select: 'Selecione',
+        product_sweets: 'Doces',
+        product_salty: 'Salgados',
+        product_bakery: 'Padaria',
+        product_preserves: 'Conservas',
+        location_home: 'Casa própria',
+        location_commercial: 'Local comercial',
+        skip: 'Pular',
+        save_and_continue: 'Salvar e Continuar',
+        chat_title: 'Assistente Regulatório',
+        chat_subtitle: 'Consultoria inteligente para alimentos',
+        new_analysis: 'Nova análise',
+        send: 'Enviar',
+        forgot_password: 'Esqueceu a senha?',
+        default_credentials: 'Credenciais padrão: admin@ali.local / 123456',
+        menu: 'Menu',
+        tab_specialists: 'Especialistas',
+        confirm_registration: 'Confirmar registro blockchain',
+        confirm_question: 'Deseja gerar um registro único desse documento na blockchain?',
+        yes: 'Sim',
+        no: 'Não',
+        confirm_logout_title: 'Confirmar saída',
+        confirm_logout: 'Tem certeza que deseja sair? Você será redirecionado para a tela de login.',
+        cancel: 'Cancelar',
+        logout: 'Sair',
+        welcome_message: 'Olá! Sou a ALI Consultora. Como posso ajudar você hoje?',
+        status_doc_sent_no_chain: 'Documento enviado sem registro blockchain.',
+        status_registering: 'Registrando documento na Stellar Testnet...',
+        status_register_ok: 'Registro concluído com sucesso.',
+        status_register_fail: 'Falha no registro blockchain',
+        status_backend_connected: 'Conexão ativa com backend',
+        status_backend_connect_fail: 'Falha na conexão com backend',
+        status_session_closed: 'Sessão encerrada.',
+        status_copy_fail: 'Não foi possível copiar para a área de transferência.',
+        attached_document: 'Documento anexado',
+        active_module: 'Módulo Ativo',
+        module_inicio: 'Início',
+        module_rotulagem: 'Rotulagem',
+        module_shelf_life: 'Shelf-Life',
+        module_bpf: 'Boas Práticas',
+        module_iso: 'Certificação ISO',
+        module_anvisa: 'ANVISA',
+        module_mapa: 'MAPA',
+        module_legislacao: 'Legislação',
+        module_custos: 'Custos e Serviços',
+        module_especialistas: 'Especialistas',
+        risk_dashboard: 'Dashboard de Riscos',
+        business_profile: 'Perfil do Negócio',
+        incomplete: 'Incompleto',
+        mapa_surveillance: 'Vigilância MAPA',
+        reviewable: 'Revisável',
+        cold_chain: 'Cadeia de Frio',
+        ok: 'OK',
+        tab_legislation: 'Legislação',
+        tab_costs: 'Custos e Serviços',
+        tab_iso: 'Certificação ISO',
+        basic_guidelines: 'Orientações de Base',
+        guideline_1: 'Revise requisitos da ANVISA RDC 216.',
+        guideline_2: 'Realize manual de BPF.',
+        guideline_3: 'Atualize registros sanitários.',
+        guideline_4: 'Mapeie etapas para certificação ISO.',
+        generate_report: 'Gerar Relatório Final',
+        msg_inicio: 'Olá! Sou a ALI Consultora. Posso ajudar com ANVISA, MAPA, BPF, rotulagem, custos e certificação. Por onde você quer começar?',
+        msg_rotulagem: 'O rótulo é um dos primeiros itens verificados pela vigilância sanitária. Se o produto é embalado, a tabela nutricional atualizada é obrigatória. Se quiser, eu te guio item por item para validar seu rótulo.',
+        msg_shelf_life: 'Shelf life é o tempo de vida útil do alimento. Definir validade no olho aumenta risco sanitário e risco legal. O ideal é considerar conservação, tipo de produto e validação técnica para definir um prazo seguro.',
+        msg_bpf: 'As Boas práticas de fabricação são as regras de higiene e processo que garantem que seu produto seja seguro para o consumidor. Atenção: o local de produção influencia os requisitos exigidos. Cuidado: sem refrigeração, produtos perecíveis exigem controle redobrado do tempo de exposição. O que você quer saber sobre BPF?',
+        msg_iso: 'A ISO 22000 é uma certificação de gestão de segurança de alimentos. Antes da ISO, o básico precisa estar firme: BPF, controles e regularização. Se quiser, eu te mostro a sequência prática para chegar na certificação.',
+        msg_anvisa: 'A ANVISA define regras federais para produção e comercialização de alimentos. Rotulagem, boas práticas e segurança do produto entram aqui. Posso te ajudar a entender o que é obrigatório no seu caso.',
+        msg_mapa: 'O MAPA é obrigatório para produtos de origem animal, como carnes, leite, ovos e derivados. Dependendo do alcance da venda, você pode precisar de SIM, SIE ou SIF. Posso te orientar no caminho correto para o seu tipo de venda.',
+        msg_legislacao: 'A legislação muda por categoria de produto e forma de venda. O ponto principal é garantir conformidade com ANVISA, município e, quando aplicável, MAPA. Se quiser, organizo um checklist direto para seu negócio.',
+        msg_custos: 'Regularização envolve custos com licenças, análises e documentação técnica. Planejar isso antes evita atraso e retrabalho. Posso te ajudar a montar uma estimativa simples por etapas.',
+        msg_especialistas: 'Você está na aba Especialistas. Aqui você pode anexar documento e gerar registro na Stellar para prova de existência e integridade.'
+        ,
+        tx_registered_title: 'Documento registrado na blockchain',
+        tx_registered_desc: 'Seu documento foi registrado na Stellar Testnet. Isso prova que ele existia nesta data e não pode ser alterado.',
+        tx_contract_hash: 'Hash do contrato',
+        tx_tx_id: 'ID da transação',
+        tx_copy: 'Copiar',
+        tx_copied: 'Copiado',
+        tx_stellar_expert: 'Ver no Stellar Expert',
+        tx_show_json: 'Mostrar detalhes técnicos (JSON)',
+        explain_question: 'Deseja entender por que gerar este registro?',
+        explanation: 'Quando você aceita criar um registro único de um documento, você se protege caso alguém altere esse documento e tente te enganar. Ao ter esse registro, é possível validar comparando ele com o documento alterado. Com isso, você garante sua segurança.'
+      }},
+      en: { translation: {
+        app_title: 'ALI Consultant',
+        app_subtitle: 'Technology and knowledge for food microentrepreneurs',
+        email: 'Email',
+        password: 'Password',
+        sign_in: 'Sign in',
+        diagnostic_title: 'Initial Diagnostic',
+        diagnostic_subtitle: 'Fill in your business information to personalize the support.',
+        business_name: 'Business name',
+        business_name_placeholder: 'Ex: Ana Sweets',
+        product_type: 'Product type',
+        has_refrigeration: 'Do you have refrigeration?',
+        production_location: 'Production location',
+        select: 'Select',
+        product_sweets: 'Sweets',
+        product_salty: 'Savory',
+        product_bakery: 'Bakery',
+        product_preserves: 'Preserves',
+        location_home: 'Home kitchen',
+        location_commercial: 'Commercial location',
+        skip: 'Skip',
+        save_and_continue: 'Save and Continue',
+        chat_title: 'Regulatory Assistant',
+        chat_subtitle: 'Smart consulting for food businesses',
+        new_analysis: 'New analysis',
+        send: 'Send',
+        forgot_password: 'Forgot password?',
+        default_credentials: 'Default credentials: admin@ali.local / 123456',
+        menu: 'Menu',
+        tab_specialists: 'Specialists',
+        confirm_registration: 'Confirm blockchain registration',
+        confirm_question: 'Do you want to generate a unique record of this document on the blockchain?',
+        yes: 'Yes',
+        no: 'No',
+        confirm_logout_title: 'Confirm logout',
+        confirm_logout: 'Are you sure you want to logout? You will be redirected to the login screen.',
+        cancel: 'Cancel',
+        logout: 'Logout',
+        welcome_message: "Hello! I'm ALI Consultant. How can I help you today?",
+        status_doc_sent_no_chain: 'Document sent without blockchain registration.',
+        status_registering: 'Registering document on Stellar Testnet...',
+        status_register_ok: 'Registration completed successfully.',
+        status_register_fail: 'Blockchain registration failed',
+        status_backend_connected: 'Backend connected',
+        status_backend_connect_fail: 'Backend connection failed',
+        status_session_closed: 'Session closed.',
+        status_copy_fail: 'Could not copy to clipboard.',
+        attached_document: 'Attached document',
+        active_module: 'Active Module',
+        module_inicio: 'Home',
+        module_rotulagem: 'Labeling',
+        module_shelf_life: 'Shelf-Life',
+        module_bpf: 'Good Practices',
+        module_iso: 'ISO Certification',
+        module_anvisa: 'ANVISA',
+        module_mapa: 'MAPA',
+        module_legislacao: 'Legislation',
+        module_custos: 'Costs and Services',
+        module_especialistas: 'Specialists',
+        risk_dashboard: 'Risk Dashboard',
+        business_profile: 'Business Profile',
+        incomplete: 'Incomplete',
+        mapa_surveillance: 'MAPA Surveillance',
+        reviewable: 'Reviewable',
+        cold_chain: 'Cold Chain',
+        ok: 'OK',
+        tab_legislation: 'Legislation',
+        tab_costs: 'Costs and Services',
+        tab_iso: 'ISO Certification',
+        basic_guidelines: 'Basic Guidelines',
+        guideline_1: 'Review ANVISA RDC 216 requirements.',
+        guideline_2: 'Create BPF manual.',
+        guideline_3: 'Update sanitary records.',
+        guideline_4: 'Map steps for ISO certification.',
+        generate_report: 'Generate Final Report',
+        msg_inicio: "Hello! I'm ALI Consultant. I can help with ANVISA, MAPA, GMP, labeling, costs and certification. Where do you want to start?",
+        msg_rotulagem: 'Labeling is one of the first items checked by health surveillance. If the product is packaged, an updated nutrition table is mandatory. If you want, I can guide you item by item to validate your label.',
+        msg_shelf_life: 'Shelf life is the useful life of food. Guessing expiration increases sanitary and legal risk. The best path is to consider storage, product type and technical validation to define a safe timeline.',
+        msg_bpf: 'Good Manufacturing Practices are hygiene and process rules that ensure your product is safe for consumers. Attention: production location affects requirements. Caution: without refrigeration, perishable products need stricter exposure-time control. What do you want to know about GMP?',
+        msg_iso: 'ISO 22000 is a food safety management certification. Before ISO, basics must be solid: GMP, controls and compliance. If you want, I can show the practical sequence to achieve certification.',
+        msg_anvisa: 'ANVISA defines federal rules for food production and commercialization. Labeling, good practices and product safety are covered here. I can help you understand what is mandatory in your case.',
+        msg_mapa: 'MAPA is mandatory for animal-origin products, such as meat, milk, eggs and derivatives. Depending on sales scope, you may need SIM, SIE or SIF. I can guide the correct path for your sales model.',
+        msg_legislacao: 'Legislation changes by product category and sales model. The key is compliance with ANVISA, municipality and, when applicable, MAPA. If you want, I can organize a direct checklist for your business.',
+        msg_custos: 'Compliance has costs with licenses, analyses and technical documentation. Planning ahead avoids delays and rework. I can help you build a simple stage-by-stage estimate.',
+        msg_especialistas: 'You are in the Specialists tab. Here you can attach a document and generate a Stellar record for proof of existence and integrity.',
+        tx_registered_title: 'Document registered on blockchain',
+        tx_registered_desc: 'Your document was registered on Stellar Testnet. This proves it existed on this date and cannot be changed without evidence.',
+        tx_contract_hash: 'Contract hash',
+        tx_tx_id: 'Transaction ID',
+        tx_copy: 'Copy',
+        tx_copied: 'Copied',
+        tx_stellar_expert: 'View on Stellar Expert',
+        tx_show_json: 'Show technical details (JSON)',
+        explain_question: 'Do you want to understand why generate this record?',
+        explanation: 'When you create a unique record of a document, you protect yourself if someone changes that document and tries to deceive you. With this record, you can validate it by comparing it with the altered document. This ensures your security.'
+      }}
+    };
+
+    initializeI18n();
     bootstrapApp();
     setupAuthBackgroundZoomSync();
     restoreSidebarState();
@@ -956,6 +1197,8 @@
       event.preventDefault();
       await login();
     });
+    langPtButton.addEventListener('click', () => i18next.changeLanguage('pt'));
+    langEnButton.addEventListener('click', () => i18next.changeLanguage('en'));
 
     togglePasswordButton.addEventListener('click', () => {
       const isHidden = loginPassword.type === 'password';
@@ -991,8 +1234,8 @@
         sidebarLinks.forEach((item) => item.classList.remove('active'));
         link.classList.add('active');
         const moduleId = link.getAttribute('data-module') || 'inicio';
-        activeModuleLabel.textContent = `Módulo Ativo • ${MODULE_TITLES[moduleId] || 'Início'}`;
-        const message = MODULE_MESSAGES[moduleId] || MODULE_MESSAGES.inicio;
+        updateActiveModuleLabel(moduleId);
+        const message = i18next.t(`msg_${moduleId}`);
         appendChatMessage(message);
         if (isCompactViewport()) {
           appShell.classList.remove('mobile-open');
@@ -1007,12 +1250,12 @@
     documentInput.addEventListener('change', () => {
       if (!documentInput.files || !documentInput.files[0]) return;
       selectedDocumentFile = documentInput.files[0];
-      appendChatMessage(`Documento anexado: ${selectedDocumentFile.name}`);
+      appendChatMessage(`${i18next.t('attached_document')}: ${selectedDocumentFile.name}`);
       blockchainModal.show();
     });
 
     blockchainNoButton.addEventListener('click', () => {
-      showStatus('Documento enviado sem registro blockchain.', 'warn');
+      showStatus(i18next.t('status_doc_sent_no_chain'), 'warn');
       resetSelectedDocument();
     });
 
@@ -1023,7 +1266,7 @@
       }
 
       setLoading(true);
-      showStatus('Registrando documento na Stellar Testnet...', 'warn');
+      showStatus(i18next.t('status_registering'), 'warn');
 
       try {
         const requestPayload = await buildContractPayload(selectedDocumentFile);
@@ -1031,9 +1274,9 @@
 
         appendTransactionReceipt(data);
 
-        showStatus('Registro concluido com sucesso.', 'ok');
+        showStatus(i18next.t('status_register_ok'), 'ok');
       } catch (error) {
-        showStatus(`Falha no registro blockchain: ${error.message}`, 'error');
+        showStatus(`${i18next.t('status_register_fail')}: ${error.message}`, 'error');
       } finally {
         setLoading(false);
         blockchainModal.hide();
@@ -1061,7 +1304,7 @@
       if (chatBody.children.length > 0) {
         return;
       }
-      appendChatMessage('Olá! Sou a ALI Consultora. Como posso ajudar você hoje?');
+      appendChatMessage(i18next.t('welcome_message'));
     }
 
     function appendChatLink(label, url) {
@@ -1134,9 +1377,9 @@
     async function initializeConnection() {
       try {
         backendBaseUrl = await resolveBackendBaseUrl();
-        showStatus(`Conexão ativa com backend: ${backendBaseUrl}`, 'ok');
+        showStatus(`${i18next.t('status_backend_connected')}: ${backendBaseUrl}`, 'ok');
       } catch (error) {
-        showStatus(`Falha na conexão com backend: ${error.message}`, 'error');
+        showStatus(`${i18next.t('status_backend_connect_fail')}: ${error.message}`, 'error');
       }
     }
     
@@ -1259,7 +1502,7 @@
         hideDiagnostic();
         requireLogin();
         appShell.classList.add('hidden');
-        showStatus('Sessão encerrada.', 'warn');
+        showStatus(i18next.t('status_session_closed'), 'warn');
       }
     }
 
@@ -1269,11 +1512,13 @@
       setMainControlsDisabled(true);
       appShell.classList.add('hidden');
       appShell.classList.remove('mobile-open');
+      applyTranslations();
     }
 
     function releaseLogin() {
       loginOverlay.classList.add('hidden');
       startDiagnosticFlow();
+      applyTranslations();
     }
 
     function startDiagnosticFlow() {
@@ -1297,12 +1542,14 @@
       diagnosticOverlay.classList.remove('hidden');
       appShell.classList.add('hidden');
       setMainControlsDisabled(true);
+      applyTranslations();
     }
 
     function completeDiagnostic() {
       hideDiagnostic();
       appShell.classList.remove('hidden');
       setMainControlsDisabled(false);
+      applyTranslations();
       ensureWelcomeMessage();
     }
 
@@ -1404,34 +1651,34 @@
         contractHash: hash,
         stellarTxHash: tx,
         stellarExpertUrl: link,
-        message: data.message || 'Contrato registrado na Stellar Testnet.',
+        message: data.message || i18next.t('tx_registered_desc'),
       };
 
       card.innerHTML = `
         <div class="tx-card-title">
           <i class="bi bi-check-circle-fill"></i>
-          <span>Documento registrado na blockchain</span>
+          <span>${escapeHtml(i18next.t('tx_registered_title'))}</span>
         </div>
         <div class="tx-card-desc">
-          Seu documento foi registrado na Stellar Testnet. Isso prova que ele existia nesta data e não pode ser alterado.
+          ${escapeHtml(i18next.t('tx_registered_desc'))}
         </div>
         <div class="tx-item">
-          <div class="tx-label">Hash do contrato</div>
+          <div class="tx-label">${escapeHtml(i18next.t('tx_contract_hash'))}</div>
           <div class="tx-value-row">
             <div class="tx-value" id="hashValue">${escapeHtml(hash)}</div>
-            <button type="button" class="copy-btn" data-copy="${escapeAttr(hash)}">Copiar</button>
+            <button type="button" class="copy-btn" data-copy="${escapeAttr(hash)}">${escapeHtml(i18next.t('tx_copy'))}</button>
           </div>
         </div>
         <div class="tx-item">
-          <div class="tx-label">ID da transação</div>
+          <div class="tx-label">${escapeHtml(i18next.t('tx_tx_id'))}</div>
           <div class="tx-value-row">
             <div class="tx-value" id="txValue">${escapeHtml(tx)}</div>
-            <button type="button" class="copy-btn" data-copy="${escapeAttr(tx)}">Copiar</button>
+            <button type="button" class="copy-btn" data-copy="${escapeAttr(tx)}">${escapeHtml(i18next.t('tx_copy'))}</button>
           </div>
         </div>
-        ${link && link !== '-' ? `<a class="tx-link" href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i>Ver no Stellar Expert</a>` : ''}
+        ${link && link !== '-' ? `<a class="tx-link" href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i>${escapeHtml(i18next.t('tx_stellar_expert'))}</a>` : ''}
         <details class="tx-technical">
-          <summary>Mostrar detalhes técnicos (JSON)</summary>
+          <summary>${escapeHtml(i18next.t('tx_show_json'))}</summary>
           <pre class="tx-json">${escapeHtml(JSON.stringify(prettyPayload, null, 2))}</pre>
         </details>
       `;
@@ -1442,12 +1689,12 @@
           try {
             await navigator.clipboard.writeText(value);
             const originalText = button.textContent;
-            button.textContent = 'Copiado';
+            button.textContent = i18next.t('tx_copied');
             setTimeout(() => {
               button.textContent = originalText;
             }, 1200);
           } catch (_error) {
-            showStatus('Não foi possível copiar para a área de transferência.', 'warn');
+            showStatus(i18next.t('status_copy_fail'), 'warn');
           }
         });
       });
@@ -1455,10 +1702,10 @@
       const explainBox = document.createElement('div');
       explainBox.className = 'explain-box';
       explainBox.innerHTML = `
-        <div style="font-size:0.9rem;color:#1f2937;">Deseja entender por que gerar este registro?</div>
+        <div style="font-size:0.9rem;color:#1f2937;">${escapeHtml(i18next.t('explain_question'))}</div>
         <div class="explain-actions">
-          <button type="button" class="btn btn-sm btn-primary" id="explainYesButton">Sim</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="explainNoButton">Não</button>
+          <button type="button" class="btn btn-sm btn-primary" id="explainYesButton">${escapeHtml(i18next.t('yes'))}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="explainNoButton">${escapeHtml(i18next.t('no'))}</button>
         </div>
       `;
       card.appendChild(explainBox);
@@ -1469,11 +1716,7 @@
       explainYesButton.addEventListener('click', () => {
         explainBox.innerHTML = `
           <div style="font-size:0.9rem;color:#1f2937;line-height:1.5;">
-            Quando você aceita criar um registro único de um documento, você se protege caso alguém altere esse documento e tente te enganar.
-            <br><br>
-            Ao ter esse registro, é possível validar comparando ele com o documento alterado.
-            <br><br>
-            Com isso, você garante sua segurança.
+            ${escapeHtml(i18next.t('explanation'))}
           </div>
         `;
       });
@@ -1566,6 +1809,61 @@
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', applyZoom);
       }
+    }
+
+    function applyTranslations() {
+      document.querySelectorAll('[data-i18n]').forEach((element) => {
+        const key = element.getAttribute('data-i18n');
+        if (!key) return;
+        element.textContent = i18next.t(key);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (!key) return;
+        element.setAttribute('placeholder', i18next.t(key));
+      });
+
+      chatMessageInput.placeholder = i18next.language === 'en' ? 'Type your message...' : 'Digite sua mensagem...';
+      attachDocumentButton.setAttribute('title', i18next.language === 'en' ? 'Attach document' : 'Anexar documento');
+      attachDocumentButton.setAttribute('aria-label', i18next.language === 'en' ? 'Attach document' : 'Anexar documento');
+      sendMessageButton.setAttribute('title', i18next.t('send'));
+      sendMessageButton.setAttribute('aria-label', i18next.t('send'));
+      logoutButton.setAttribute('title', i18next.t('logout'));
+      logoutButton.setAttribute('aria-label', i18next.t('logout'));
+      loginStatus.textContent = i18next.t('default_credentials');
+      const activeLink = document.querySelector('.nav-link.active');
+      const activeModule = activeLink ? activeLink.getAttribute('data-module') : 'especialistas';
+      updateActiveModuleLabel(activeModule || 'especialistas');
+      langPtButton.classList.toggle('active', i18next.language === 'pt');
+      langEnButton.classList.toggle('active', i18next.language === 'en');
+    }
+
+    function updateActiveModuleLabel(moduleId) {
+      const labelByModule = {
+        inicio: i18next.t('module_inicio'),
+        rotulagem: i18next.t('module_rotulagem'),
+        shelf_life: i18next.t('module_shelf_life'),
+        bpf: i18next.t('module_bpf'),
+        iso: i18next.t('module_iso'),
+        anvisa: i18next.t('module_anvisa'),
+        mapa: i18next.t('module_mapa'),
+        legislacao: i18next.t('module_legislacao'),
+        custos: i18next.t('module_custos'),
+        especialistas: i18next.t('module_especialistas')
+      };
+      activeModuleLabel.textContent = `${i18next.t('active_module')} • ${labelByModule[moduleId] || i18next.t('module_especialistas')}`;
+    }
+
+    function initializeI18n() {
+      i18next.init({
+        resources,
+        lng: 'pt',
+        fallbackLng: 'pt',
+        interpolation: { escapeValue: false }
+      }, () => {
+        applyTranslations();
+      });
+      i18next.on('languageChanged', applyTranslations);
     }
   </script>
 </body>
