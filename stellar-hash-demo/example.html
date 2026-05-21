@@ -206,6 +206,23 @@
       background: #eff6ff;
       border-color: #bfdbfe;
     }
+    .message.blockchain-message {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+    }
+    .message.blockchain-message .tx-card {
+      margin: 0;
+      box-shadow: none;
+    }
+    .ajuda-message {
+      background: #eef2ff;
+      border-left: 4px solid #3b82f6;
+    }
+    .ajuda-explicacao {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      margin-top: 4px;
+    }
     .tx-card {
       background: #ffffff;
       border: 1px solid #dbeafe;
@@ -876,6 +893,60 @@
     </div>
   </div>
 
+  <div class="modal fade" id="compareModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Comparar com documento anterior</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Selecione o documento para comparar:</p>
+          <div id="documentList" style="max-height: 300px; overflow-y: auto;">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="compareChoiceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Comparar documento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Deseja comparar este documento com algum dos documentos enviados anteriormente?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="compareNoBtn" data-bs-dismiss="modal">Não</button>
+          <button type="button" class="btn btn-primary" id="compareYesBtn" data-bs-dismiss="modal">Sim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="clearChatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Nova análise</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Isso vai limpar o histórico de conversas da aba atual. As mensagens registradas (blockchain) continuam salvas.</p>
+          <p>Deseja continuar?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary" id="confirmClearChatBtn">Sim, limpar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/i18next@23.10.0/i18next.min.js"></script>
   <script>
@@ -920,14 +991,64 @@
     const loginStatus = document.getElementById('loginStatus');
     const loginSubmitButton = document.getElementById('loginSubmitButton');
     const confirmLogoutButton = document.getElementById('confirmLogoutButton');
+    const compareModalElement = document.getElementById('compareModal');
+    const compareChoiceModalElement = document.getElementById('compareChoiceModal');
+    const compareYesBtn = document.getElementById('compareYesBtn');
+    const compareNoBtn = document.getElementById('compareNoBtn');
+    const clearChatModalElement = document.getElementById('clearChatModal');
+    const confirmClearChatBtn = document.getElementById('confirmClearChatBtn');
+    const novaAnaliseBtn = document.querySelector('[data-i18n="new_analysis"]');
+    const documentList = document.getElementById('documentList');
     const blockchainModal = new bootstrap.Modal(
       document.getElementById('blockchainRegisterModal')
     );
     const logoutModal = new bootstrap.Modal(
       document.getElementById('logoutConfirmModal')
     );
+    const compareModal = new bootstrap.Modal(compareModalElement);
+    const compareChoiceModal = new bootstrap.Modal(compareChoiceModalElement);
+    const clearChatModal = new bootstrap.Modal(clearChatModalElement);
 
+    // ============================================
+    // VARIÁVEIS GLOBAIS (compartilhadas entre módulos)
+    // ============================================
+    // ATENÇÃO: Este é um arquivo HTML único. O uso de variáveis globais
+    // é aceitável para esta demonstração. Em produção, considerar encapsulamento.
+    // ============================================
     let selectedDocumentFile = null;
+    let documentosEnviados = []; // cada item: { fileName, fileHash, timestamp, stellarTxHash }
+    let abaAtiva = 'especialistas';
+    let isHydratingTab = false;
+    let chatPorAba = {
+      inicio: [],
+      rotulagem: [],
+      shelf_life: [],
+      bpf: [],
+      iso: [],
+      anvisa: [],
+      mapa: [],
+      legislacao: [],
+      custos: [],
+      especialistas: []
+    };
+    let sessionNoticeShown = false;
+    const mensagensAjuda = {
+      registro: {
+        titulo: '🔐 Documento registrado na blockchain',
+        pergunta: 'Deseja entender o que significa este registro e como ele protege seu documento?',
+        explicacao: 'O registro na blockchain cria uma impressão digital única do seu documento (hash). Essa impressão é guardada na rede Stellar com data e hora. Se alguém alterar o documento depois, a impressão digital muda e você consegue provar que o documento original foi modificado. Isso protege você contra fraudes em contratos, laudos ou acordos com consultores.'
+      },
+      comparacao_igual: {
+        titulo: '✅ Documentos são idênticos',
+        pergunta: 'Deseja entender o que significa este resultado?',
+        explicacao: 'Os dois documentos são exatamente iguais, byte por byte. Isso significa que nenhuma alteração foi feita entre eles. Se você está comparando um contrato original com uma cópia, pode ficar tranquilo: o conteúdo é o mesmo.'
+      },
+      comparacao_diferente: {
+        titulo: '⚠️ Documentos são diferentes',
+        pergunta: 'Deseja entender o que significa esta diferença e como proceder?',
+        explicacao: 'Os documentos são diferentes. Isso pode significar: 1) o documento foi alterado após o registro original, 2) são documentos diferentes, 3) o arquivo pode ter sido corrompido. Recomendações: verifique se está comparando os documentos corretos, confirme a data e hora do registro original na blockchain e, se for contrato, entre em contato com o consultor para esclarecimentos.'
+      }
+    };
     let backendBaseUrl = '';
     let authToken = localStorage.getItem('ali_auth_token') || '';
     const DIAGNOSTIC_KEY = 'ali_initial_diagnostic';
@@ -1223,6 +1344,30 @@
     skipDiagnosticButton.addEventListener('click', () => {
       completeDiagnostic();
     });
+
+    compareYesBtn.addEventListener('click', async () => {
+      console.log('🔍 Botão Sim clicado. selectedDocumentFile:', selectedDocumentFile?.name);
+      await showDocumentList();
+    });
+
+    compareNoBtn.addEventListener('click', () => {
+      blockchainModal.show();
+    });
+
+    // Listener removido para não limpar selectedDocumentFile antes da comparação.
+
+    if (novaAnaliseBtn) {
+      novaAnaliseBtn.addEventListener('click', () => {
+        clearChatModal.show();
+      });
+    }
+
+    confirmClearChatBtn.addEventListener('click', () => {
+      chatPorAba[abaAtiva] = [];
+      carregarMensagensDaAba(abaAtiva);
+      appendChatMessage(i18next.t(`msg_${abaAtiva}`));
+      clearChatModal.hide();
+    });
     
     sidebarLinks.forEach((link) => {
       link.addEventListener('click', (event) => {
@@ -1231,12 +1376,21 @@
           requireLogin();
           return;
         }
+        const moduleId = link.getAttribute('data-module') || 'inicio';
+        if (abaAtiva === moduleId) return;
+
+        salvarMensagensDaAbaAtual();
+        abaAtiva = moduleId;
+
         sidebarLinks.forEach((item) => item.classList.remove('active'));
         link.classList.add('active');
-        const moduleId = link.getAttribute('data-module') || 'inicio';
         updateActiveModuleLabel(moduleId);
-        const message = i18next.t(`msg_${moduleId}`);
-        appendChatMessage(message);
+        if ((chatPorAba[abaAtiva] || []).length === 0) {
+          carregarMensagensDaAba(abaAtiva);
+          appendChatMessage(obterMensagemAutomatica(moduleId));
+        } else {
+          carregarMensagensDaAba(abaAtiva);
+        }
         if (isCompactViewport()) {
           appShell.classList.remove('mobile-open');
         }
@@ -1247,10 +1401,15 @@
       syncLayoutByViewport();
     });
 
-    documentInput.addEventListener('change', () => {
+    documentInput.addEventListener('change', async () => {
       if (!documentInput.files || !documentInput.files[0]) return;
       selectedDocumentFile = documentInput.files[0];
+      console.log('📁 Arquivo salvo em selectedDocumentFile:', selectedDocumentFile?.name);
       appendChatMessage(`${i18next.t('attached_document')}: ${selectedDocumentFile.name}`);
+      if (documentosEnviados.length > 0) {
+        compareChoiceModal.show();
+        return;
+      }
       blockchainModal.show();
     });
 
@@ -1271,6 +1430,18 @@
       try {
         const requestPayload = await buildContractPayload(selectedDocumentFile);
         const data = await callSignContract(requestPayload);
+        const normalizedHash = normalizeContractHash(data.contractHash);
+        if (!normalizedHash) {
+          throw new Error('Hash retornado pelo backend em formato inválido.');
+        }
+        documentosEnviados.push({
+          fileName: data.fileName || selectedDocumentFile.name,
+          fileHash: normalizedHash,
+          timestamp: new Date().toISOString(),
+          stellarTxHash: data.stellarTxHash,
+        });
+        showSessionLimitationNotice();
+        oferecerAjuda('registro');
 
         appendTransactionReceipt(data);
 
@@ -1287,10 +1458,15 @@
     function appendChatMessage(content, options = {}) {
       const message = document.createElement('div');
       message.className = 'message';
+      if (options.isBlockchainMessage) {
+        message.classList.add('blockchain-message');
+      }
       if (options.isUser) {
         message.classList.add('message-user');
+        message.textContent = content;
+      } else {
+        message.innerHTML = content;
       }
-      message.textContent = content;
 
       const time = document.createElement('small');
       time.textContent = currentTime();
@@ -1298,13 +1474,96 @@
 
       chatBody.appendChild(message);
       chatBody.scrollTop = chatBody.scrollHeight;
+
+      if (!isHydratingTab) {
+        if (!chatPorAba[abaAtiva]) chatPorAba[abaAtiva] = [];
+        chatPorAba[abaAtiva].push({
+          content,
+          isUser: !!options.isUser,
+          timestamp: new Date().toISOString(),
+          isBlockchainMessage: !!options.isBlockchainMessage
+        });
+      }
     }
 
     function ensureWelcomeMessage() {
       if (chatBody.children.length > 0) {
         return;
       }
-      appendChatMessage(i18next.t('welcome_message'));
+      appendChatMessage(obterMensagemAutomatica(abaAtiva));
+    }
+
+    function salvarMensagensDaAbaAtual() {
+      const messages = [];
+      chatBody.querySelectorAll('.message, .tx-card').forEach((el) => {
+        if (el.classList.contains('tx-card')) {
+          messages.push({
+            content: el.outerHTML,
+            isUser: false,
+            isBlockchainMessage: true,
+            timestamp: new Date().toISOString()
+          });
+          return;
+        }
+        const isUser = el.classList.contains('message-user');
+        const contentNode = el.childNodes[0];
+        const content = contentNode ? String(contentNode.textContent || '') : '';
+        messages.push({
+          content,
+          isUser,
+          isBlockchainMessage: false,
+          timestamp: new Date().toISOString()
+        });
+      });
+      chatPorAba[abaAtiva] = messages;
+    }
+
+    function carregarMensagensDaAba(abaId) {
+      chatBody.innerHTML = '';
+      const mensagens = chatPorAba[abaId] || [];
+      isHydratingTab = true;
+      mensagens.forEach((msg) => {
+        if (msg.isBlockchainMessage) {
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = msg.content;
+          const card = wrapper.firstElementChild;
+          if (card) {
+            chatBody.appendChild(card);
+          }
+          return;
+        }
+        const message = document.createElement('div');
+        message.className = 'message';
+        if (msg.isUser) {
+          message.classList.add('message-user');
+          message.textContent = msg.content;
+        } else {
+          message.innerHTML = msg.content;
+        }
+        const time = document.createElement('small');
+        time.textContent = new Date(msg.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        message.appendChild(time);
+        chatBody.appendChild(message);
+      });
+      isHydratingTab = false;
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function obterMensagemAutomatica(abaId) {
+      const t = (typeof i18next !== 'undefined' && i18next.t) ? i18next.t.bind(i18next) : (key) => key;
+      const mensagens = {
+        inicio: t('msg_inicio'),
+        rotulagem: t('msg_rotulagem'),
+        shelf_life: t('msg_shelf_life'),
+        bpf: t('msg_bpf'),
+        iso: t('msg_iso'),
+        anvisa: t('msg_anvisa'),
+        mapa: t('msg_mapa'),
+        legislacao: t('msg_legislacao'),
+        custos: t('msg_custos'),
+        especialistas: t('msg_especialistas')
+      };
+      return mensagens[abaId] || 'Como posso ajudar você hoje?';
     }
 
     function appendChatLink(label, url) {
@@ -1519,6 +1778,7 @@ async function resolveBackendBaseUrl() {
       appShell.classList.remove('hidden');
       setMainControlsDisabled(false);
       applyTranslations();
+      showSessionLimitationNotice();
       ensureWelcomeMessage();
     }
 
@@ -1567,6 +1827,175 @@ async function resolveBackendBaseUrl() {
     function resetSelectedDocument() {
       selectedDocumentFile = null;
       documentInput.value = '';
+    }
+
+    function isHex64(value) {
+      return /^[a-fA-F0-9]{64}$/.test(String(value || ''));
+    }
+
+    function base64ToHex(base64) {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function normalizeContractHash(rawHash) {
+      const value = String(rawHash || '').trim();
+      if (isHex64(value)) return value.toLowerCase();
+      try {
+        const hex = base64ToHex(value);
+        return isHex64(hex) ? hex.toLowerCase() : '';
+      } catch (_error) {
+        return '';
+      }
+    }
+
+    async function calcularHashDoArquivo(file) {
+      const buffer = await file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function showSessionLimitationNotice() {
+      if (sessionNoticeShown) return;
+      sessionNoticeShown = true;
+      showStatus('Os documentos enviados são salvos apenas durante esta sessão. Recarregar a página limpará o histórico.', 'warn');
+    }
+
+    async function showDocumentList() {
+      if (documentosEnviados.length === 0) {
+        documentList.innerHTML = '<p class="text-muted">Nenhum documento encontrado.</p>';
+      } else {
+        documentList.innerHTML = documentosEnviados.map((doc, idx) => `
+          <div class="border rounded p-2 mb-2">
+            <div><strong>${escapeHtml(doc.fileName)}</strong></div>
+            <div class="small text-muted">Enviado: ${new Date(doc.timestamp).toLocaleString()}</div>
+            <div class="small text-muted">Hash: ${escapeHtml(doc.fileHash.substring(0, 16))}...</div>
+            <button class="btn btn-sm btn-primary mt-2" data-index="${idx}">Comparar</button>
+          </div>
+        `).join('');
+
+        documentList.querySelectorAll('button[data-index]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const index = Number.parseInt(btn.getAttribute('data-index') || '-1', 10);
+            await compararComDocumento(index);
+            compareModal.hide();
+          });
+        });
+      }
+      compareModal.show();
+    }
+
+    async function compararComDocumento(index) {
+      console.log('🔎 compararComDocumento chamada. Arquivo atual:', selectedDocumentFile?.name);
+      if (!selectedDocumentFile) {
+        console.error('selectedDocumentFile está vazio. Fluxo interrompido.');
+        showStatus('Erro: O arquivo foi perdido. Por favor, anexe novamente.', 'error');
+        return;
+      }
+
+      const docAntigo = documentosEnviados[index];
+      if (!docAntigo) {
+        showStatus('Documento anterior não encontrado.', 'error');
+        return;
+      }
+
+      setLoading(true);
+      showStatus('Calculando hash do novo documento...', 'warn');
+
+      try {
+        const novoHash = await calcularHashDoArquivo(selectedDocumentFile);
+        const isEqual = novoHash === docAntigo.fileHash;
+        appendComparisonResult(
+          selectedDocumentFile.name,
+          novoHash,
+          docAntigo.fileName,
+          docAntigo.fileHash,
+          isEqual
+        );
+        if (isEqual) {
+          showStatus('Comparação concluída: documentos IDÊNTICOS', 'ok');
+          oferecerAjuda('comparacao_igual');
+        } else {
+          showStatus('Comparação concluída: documentos DIFERENTES', 'warn');
+          oferecerAjuda('comparacao_diferente');
+        }
+      } catch (error) {
+        showStatus('Erro ao calcular hash do documento.', 'error');
+        console.error(error);
+      } finally {
+        setLoading(false);
+        resetSelectedDocument();
+      }
+    }
+
+    function appendComparisonResult(fileName1, hash1, fileName2, hash2, isEqual) {
+      const message = document.createElement('div');
+      message.className = 'message';
+      message.innerHTML = `
+        <strong>📋 Comparação de documentos</strong><br>
+        📄 Documento A: ${escapeHtml(fileName1)}<br>
+        📄 Documento B: ${escapeHtml(fileName2)}<br>
+        🔑 Hash A: ${escapeHtml(hash1.substring(0, 16))}...<br>
+        🔑 Hash B: ${escapeHtml(hash2.substring(0, 16))}...<br>
+        <strong>🎯 Resultado:</strong> ${isEqual ? '✅ OS DOCUMENTOS SÃO IDÊNTICOS' : '❌ OS DOCUMENTOS SÃO DIFERENTES'}
+      `;
+      const time = document.createElement('small');
+      time.textContent = currentTime();
+      message.appendChild(time);
+      chatBody.appendChild(message);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function oferecerAjuda(tipo) {
+      if (abaAtiva === 'especialistas') {
+        return;
+      }
+      const config = mensagensAjuda[tipo];
+      if (!config) return;
+
+      const message = document.createElement('div');
+      message.className = 'message ajuda-message';
+      message.innerHTML = `
+        <strong>${escapeHtml(config.titulo)}</strong><br><br>
+        <p>${escapeHtml(config.pergunta)}</p>
+        <div class="mt-2">
+          <button class="btn btn-sm btn-primary me-2" data-ajuda-acao="sim">Sim, me explique</button>
+          <button class="btn btn-sm btn-outline-secondary" data-ajuda-acao="nao">Não, obrigado</button>
+        </div>
+      `;
+
+      const btnSim = message.querySelector('[data-ajuda-acao="sim"]');
+      const btnNao = message.querySelector('[data-ajuda-acao="nao"]');
+
+      btnSim.addEventListener('click', () => {
+        const explicacaoDiv = document.createElement('div');
+        explicacaoDiv.className = 'message ajuda-explicacao';
+        explicacaoDiv.innerHTML = `
+          <strong>📚 Explicação</strong><br>
+          <p>${escapeHtml(config.explicacao)}</p>
+        `;
+        const time = document.createElement('small');
+        time.textContent = currentTime();
+        explicacaoDiv.appendChild(time);
+        message.insertAdjacentElement('afterend', explicacaoDiv);
+        btnSim.disabled = true;
+        btnNao.disabled = true;
+      });
+
+      btnNao.addEventListener('click', () => {
+        message.remove();
+      });
+
+      const time = document.createElement('small');
+      time.textContent = currentTime();
+      message.appendChild(time);
+      chatBody.appendChild(message);
+      chatBody.scrollTop = chatBody.scrollHeight;
     }
 
     function appendTransactionReceipt(data) {
@@ -1656,6 +2085,17 @@ async function resolveBackendBaseUrl() {
 
       chatBody.appendChild(card);
       chatBody.scrollTop = chatBody.scrollHeight;
+      if (!isHydratingTab) {
+        if (!chatPorAba[abaAtiva]) chatPorAba[abaAtiva] = [];
+        chatPorAba[abaAtiva].push({
+          content: card.outerHTML,
+          isUser: false,
+          timestamp: new Date().toISOString(),
+          isBlockchainMessage: true,
+          hash: data.contractHash,
+          txHash: data.stellarTxHash
+        });
+      }
     }
 
     function escapeHtml(value) {

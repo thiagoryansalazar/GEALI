@@ -3,6 +3,8 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
+const multer = require('multer');
+const rateLimit = require('express-rate-limit');
 
 const {
   Asset,
@@ -25,23 +27,56 @@ dotenv.config({
 const app = express();
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.STELLAR_SECRET;
-const LOGIN_EMAIL = process.env.APP_LOGIN_EMAIL || 'admin@ali.local';
-const LOGIN_PASSWORD = process.env.APP_LOGIN_PASSWORD || '123456';
+const LOGIN_EMAIL = process.env.APP_LOGIN_EMAIL;
+const LOGIN_PASSWORD = process.env.APP_LOGIN_PASSWORD;
 const HORIZON_SERVER = new Horizon.Server(
   process.env.HORIZON_URL || 'https://horizon-testnet.stellar.org'
 );
 const activeSessions = new Map();
+const SESSION_TTL = 2 * 60 * 60 * 1000; // 2 horas
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB máximo
+});
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // limite de 100 requisições por IP
+  message: 'Muitas requisições. Tente novamente mais tarde.',
+});
+const signContractLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: 'Muitas requisições. Aguarde um momento antes de tentar novamente.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+const allowedOrigins = process.env.ALLOWED_ORIGIN
+  ? [process.env.ALLOWED_ORIGIN]
+  : ['http://localhost:3000'];
+// DEMO: Mapeamento em memória. Em produção, usar banco de dados.
+if (!global.hashToTxMap) global.hashToTxMap = new Map();
 
 if (!SECRET_KEY) {
   throw new Error('Defina STELLAR_SECRET no arquivo .env.');
+}
+if (!LOGIN_EMAIL || !LOGIN_PASSWORD) {
+  throw new Error('Credenciais de administrador não configuradas no arquivo .env');
 }
 
 const KEYPAIR = Keypair.fromSecret(SECRET_KEY);
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (!origin) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  } else if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!process.env.ALLOWED_ORIGIN) {
+    // Desenvolvimento: mantém aberto quando ALLOWED_ORIGIN não foi configurado.
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
@@ -72,18 +107,23 @@ app.get('/session', (req, res) => {
   });
 });
 
-app.post('/login', (req, res) => {
-  const email = String(req.body?.email || '').trim().toLowerCase();
-  const password = String(req.body?.password || '');
+app.post('/login', limiter, (req, res) => {
+  try {
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const password = String(req.body?.password || '');
 
-  if (email !== LOGIN_EMAIL.toLowerCase() || password !== LOGIN_PASSWORD) {
-    return res.status(401).json({ error: 'Credenciais invalidas.' });
+    if (email !== LOGIN_EMAIL.toLowerCase() || password !== LOGIN_PASSWORD) {
+      return res.status(401).json({ error: 'Credenciais invalidas.' });
+    }
+
+    const token = crypto.randomBytes(24).toString('hex');
+    activeSessions.set(token, { email, createdAt: Date.now() });
+
+    return res.json({ token, email });
+  } catch (error) {
+    console.error('Erro interno:', error); // Log interno (só aparece no terminal)
+    return res.status(500).json({ error: 'Erro interno do servidor. Tente novamente mais tarde.' });
   }
-
-  const token = crypto.randomBytes(24).toString('hex');
-  activeSessions.set(token, { email, createdAt: Date.now() });
-
-  return res.json({ token, email });
 });
 
 app.post('/logout', (req, res) => {
@@ -94,17 +134,16 @@ app.post('/logout', (req, res) => {
   return res.json({ ok: true });
 });
 
-app.post('/sign-contract', requireAuth, async (req, res) => {
+app.post('/sign-contract', requireAuth, signContractLimiter, upload.single('file'), async (req, res) => {
   try {
-    const { contract, contractBytesBase64 } = req.body || {};
-    const normalizedContract = normalizeContract(contract, contractBytesBase64);
-    const contractHash = createContractHash(normalizedContract);
-    const memoText = `contract_${contractHash.substring(0, 19)}`;
+    const contractBuffer = getContractBuffer(req);
+    const contractHash = createContractHash(contractBuffer);
+    const hashBuffer = Buffer.from(contractHash, 'hex');
     const account = await HORIZON_SERVER.loadAccount(KEYPAIR.publicKey());
 
     const transaction = new TransactionBuilder(account, {
       fee: String(BASE_FEE),
-      memo: Memo.text(memoText),
+      memo: Memo.hash(hashBuffer),
       networkPassphrase: Networks.TESTNET,
     })
       .addOperation(
@@ -121,87 +160,90 @@ app.post('/sign-contract', requireAuth, async (req, res) => {
 
     const submission = await HORIZON_SERVER.submitTransaction(transaction);
     const stellarTxHash = submission.hash;
+    global.hashToTxMap.set(contractHash, stellarTxHash);
 
     return res.json({
       contractHash,
       stellarTxHash,
       stellarExpertUrl: `https://stellar.expert/explorer/testnet/tx/${stellarTxHash}`,
-      message: 'Contrato registrado na Stellar Testnet.',
+      message: 'Contrato registrado na Stellar Testnet com hash completo via Memo.hash.',
     });
   } catch (error) {
-    const detailedError = getStellarErrorMessage(error) || 'Falha ao assinar contrato.';
-    return res.status(500).json({
-      error: detailedError,
-      details: {
-        message: error?.message || null,
-        horizonDetail: error?.response?.data?.detail || null,
-        resultCodes: error?.response?.data?.extras?.result_codes || null,
-      },
-    });
+    console.error('Erro interno:', error); // Log interno (só aparece no terminal)
+    return res.status(500).json({ error: 'Erro interno do servidor. Tente novamente mais tarde.' });
   }
 });
 
-app.post('/verify-contract', (req, res) => {
+app.post('/verify-contract', requireAuth, upload.single('file'), async (req, res) => {
   try {
-    const contract = getContract(req.body);
-    const originalHash = String(req.body?.originalHash || '').trim();
+    const contractBuffer = getContractBuffer(req);
+    const currentHash = createContractHash(contractBuffer);
+    const currentHashMemoBase64 = Buffer.from(currentHash, 'hex').toString('base64');
 
-    if (!originalHash) {
-      return res.status(400).json({
-        isValid: false,
-        currentHash: createContractHash(contract),
-        message: 'Informe o hash original para verificar o contrato.',
-      });
+    const txHash = String(req.body?.stellarTxHash || req.body?.txHash || '').trim();
+    let memoFromChain = '';
+    let usedTxHash = txHash;
+
+    if (usedTxHash) {
+      const tx = await HORIZON_SERVER.transactions().transaction(usedTxHash).call();
+      memoFromChain = String(tx.memo || '');
+    } else {
+      const mappedTxHash = global.hashToTxMap.get(currentHash);
+      if (!mappedTxHash) {
+        return res.status(404).json({
+          isValid: false,
+          currentHash,
+          message: 'Transacao nao encontrada para este contrato. Informe stellarTxHash.',
+        });
+      }
+      usedTxHash = mappedTxHash;
+      const tx = await HORIZON_SERVER.transactions().transaction(usedTxHash).call();
+      memoFromChain = String(tx.memo || '');
     }
 
-    const currentHash = createContractHash(contract);
-    const isValid = currentHash === originalHash;
+    const isValid = memoFromChain === currentHashMemoBase64;
 
     return res.json({
       isValid,
       currentHash,
+      stellarTxHash: usedTxHash || null,
       message: isValid
         ? 'Contrato valido. Nenhuma alteracao detectada.'
         : 'Contrato alterado apos o registro.',
     });
   } catch (error) {
-    return res.status(500).json({
-      error: error.message || 'Falha ao verificar contrato.',
-    });
+    console.error('Erro interno:', error); // Log interno (só aparece no terminal)
+    return res.status(500).json({ error: 'Erro interno do servidor. Tente novamente mais tarde.' });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running at http://0.0.0.0:${PORT}`);
 });
 
-function getContract(body) {
-  const contract = String(body?.contract || body?.contrato || '').trim();
-
-  if (!contract) {
-    throw new Error('Contrato nao pode estar vazio.');
+function getContractBuffer(req) {
+  if (req.file?.buffer?.length) {
+    return req.file.buffer;
   }
 
-  return contract;
-}
-
-function normalizeContract(contract, contractBytesBase64) {
+  const contractBytesBase64 = String(req.body?.contractBytesBase64 || '').trim();
   if (contractBytesBase64) {
-    const fileBuffer = Buffer.from(String(contractBytesBase64), 'base64');
-    const convertedText = fileBuffer.toString('utf8').trim();
-
-    if (!convertedText) {
+    const fileBuffer = Buffer.from(contractBytesBase64, 'base64');
+    if (!fileBuffer.length) {
       throw new Error('Contrato nao pode estar vazio.');
     }
-
-    return convertedText;
+    return fileBuffer;
   }
 
-  return getContract({ contract });
+  const contractText = String(req.body?.contract || req.body?.contrato || '');
+  if (!contractText.trim()) {
+    throw new Error('Contrato nao pode estar vazio.');
+  }
+  return Buffer.from(contractText, 'utf8');
 }
 
-function createContractHash(contract) {
-  return crypto.createHash('sha256').update(contract).digest('hex');
+function createContractHash(contractBuffer) {
+  return crypto.createHash('sha256').update(contractBuffer).digest('hex');
 }
 
 function getStellarErrorMessage(error) {
@@ -226,6 +268,12 @@ function requireAuth(req, res, next) {
   if (!token || !activeSessions.has(token)) {
     return res.status(401).json({ error: 'Nao autenticado.' });
   }
-  req.user = activeSessions.get(token);
+  const session = activeSessions.get(token);
+  // Verificar expiracao (apenas se createdAt existir)
+  if (session.createdAt && (Date.now() - session.createdAt > SESSION_TTL)) {
+    activeSessions.delete(token);
+    return res.status(401).json({ error: 'Sessao expirada. Faca login novamente.' });
+  }
+  req.user = session;
   next();
 }
