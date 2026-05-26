@@ -101,4 +101,4 @@ Signed contract
 1. Proof of existence:** The document existed on that date and time
 2. Change detection:** Any modification to the document is detected
 3. Independent verification:** Anyone can verify the hash on the blockchain
-4. Low cost:** Transactions on the Stellar Testnet (and future Mainnet) have a cost close to zero
+

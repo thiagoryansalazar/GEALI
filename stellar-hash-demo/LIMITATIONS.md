@@ -1,24 +1,43 @@
-# Limitações Técnicas da Demonstração
+# Technical Limitations of the Demonstration
 
-## Estado Atual (MVP para Demo)
+## Current State (MVP for Demo)
 
-O sistema utiliza armazenamento em memória (JavaScript Map) para:
-- Sessões de usuários (`activeSessions`)
-- Mapeamento hash do documento → transação Stellar (`global.hashToTxMap`)
+The system uses in-memory storage (JavaScript Map) for:
+- User sessions (`activeSessions`)
+- Mapping document hash → Stellar transaction (`global.hashToTxMap`)
 
-## Implicações
+## Implications
 
-- **Reinicialização do servidor:** Todos os dados em memória são perdidos.
-- **Escala horizontal:** Não é possível rodar múltiplas instâncias.
+- **Server restart:** All data in memory is lost.
 
-## Solução em Produção
+- **Horizontal scaling:** It is not possible to run multiple server instances sharing the same state.
 
-| Componente atual | Solução de produção |
+## Production Solution
+
+| Current component | Production solution |
+
 |------------------|---------------------|
-| `activeSessions` (Map) | Redis com TTL |
-| `hashToTxMap` (Map) | PostgreSQL |
-| Rate limit em memória | Redis |
 
-## Por que esta abordagem?
+| `activeSessions` (Map) | Redis with TTL (automatic expiration) |
 
-Foco da demo: validar integração com Stellar, hash completo, arquivos binários e verificação na blockchain.
+| `hashToTxMap` (Map) | PostgreSQL (persistence) |
+
+| Rate limit in memory | Redis (distributed counter) |
+
+## Why this approach for the demo? The focus of this demonstration is to validate:
+
+1. Integration with the Stellar Testnet
+2. Full hash logging via `Memo.hash`
+3. Correct processing of binary files (PDF, DOC, TXT)
+4. Verification flow querying the blockchain
+
+Memory storage is sufficient for a continuous demonstration, where the server is not restarted during the presentation.
+
+## Implemented Security Notes
+
+- Rate limiting: 10 requests per minute on the `/sign-contract` route
+- Upload limit: 5MB per file
+- Sensitive variables in `.env` (not versioned)
+- Hash calculated on original bytes (without UTF-8 conversion)
+
+```
